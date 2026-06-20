@@ -27,8 +27,15 @@ const SEGMENT_MAP = {
   agent_state: (payload) => payload?.agent_state ? colors.purple(payload.agent_state) : '',
   plan_tier: (payload) => payload?.plan_tier ? colors.yellow(payload.plan_tier) : '',
   product: (payload) => payload?.product ? colors.cyan(payload.product) : '',
-  artifact_count: (payload) => payload?.artifact_count ? `📦${payload.artifact_count}` : ''
+  artifact_count: (payload) => payload?.artifact_count ? `📦${payload.artifact_count}` : '',
+  output_tokens: (payload) => payload?.context_window?.total_output_tokens ? colors.dim(`Out:${formatNumber(payload.context_window.total_output_tokens)}`) : '',
+  sandbox: (payload) => payload?.sandbox?.enabled ? '🔒' : '',
+  exceeds_200k: (payload) => payload?.exceeds_200k_tokens ? colors.red('⚠>200k') : ''
 };
+
+function getPayloadPath(obj, path) {
+  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+}
 
 export function renderStatusLine(payload, config) {
   const parts = [];
@@ -43,6 +50,12 @@ export function renderStatusLine(payload, config) {
     } else if (SEGMENT_MAP[segment]) {
       const res = SEGMENT_MAP[segment](payload);
       if (res) parts.push(res);
+    } else if (typeof segment === 'string') {
+      // Dynamic fallback: allow querying deep payload paths like "context_window.context_window_size"
+      const val = getPayloadPath(payload, segment);
+      if (val !== undefined && val !== null) {
+        parts.push(String(val));
+      }
     }
   }
   return parts.join(config.separator);

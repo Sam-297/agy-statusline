@@ -58,6 +58,18 @@ You can arrange these built-in strings in any order:
 - `"plan_tier"`: Your subscription tier
 - `"product"`: The AGY product name
 - `"artifact_count"`: Number of artifacts in the session
+- `"output_tokens"`: Separate output token counter (`Out:15.7k`)
+- `"sandbox"`: Shows 🔒 if sandbox is enabled
+- `"exceeds_200k"`: Shows ⚠>200k warning if true
+
+### Dynamic Payload Extraction
+
+If you include a string in your `segments` array that isn't built-in, `agy-statusline` will attempt to extract it directly from the live AGY JSON payload using dot-notation! 
+
+For example, if you just want the raw input token count, you can simply add:
+`"context_window.current_usage.input_tokens"`
+
+It will instantly render the exact number on your screen without any custom JS.
 
 ### Writing Custom Segments
 
