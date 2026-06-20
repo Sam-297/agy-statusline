@@ -16,5 +16,6 @@ export default {
   purple: (text) => wrap('\x1b[38;2;167;139;250m', text),
   white: (text) => wrap('\x1b[38;2;220;220;220m', text),
   googleBlue: (text) => wrap('\x1b[38;2;66;133;244m', text),
-  claudeOrange: (text) => wrap('\x1b[38;2;217;119;87m', text)
+  claudeOrange: (text) => wrap('\x1b[38;2;217;119;87m', text),
+  openaiGreen: (text) => wrap('\x1b[38;2;16;163;127m', text)
 };

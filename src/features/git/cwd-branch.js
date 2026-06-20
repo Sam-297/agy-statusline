@@ -16,19 +16,33 @@ export function getBranchNative(dir) {
   }
 }
 
-export function renderCwdBranch(payload, utils = {}) {
+export function renderCwd(payload, utils = {}) {
   const cwd = payload?.workspace?.current_dir || payload?.cwd || process.cwd();
-  const getBranch = utils.getBranch || getBranchNative;
   const homeDir = utils.homeDir || process.env.HOME || process.env.USERPROFILE;
   
   let baseName = path.basename(cwd);
   if (cwd === homeDir) {
     baseName = '~';
   }
-  
-  const branch = getBranch(cwd);
-  if (branch) {
-    return `${colors.cyan(baseName)}${colors.dim('@')}${colors.green(branch)}`;
-  }
   return colors.cyan(baseName);
+}
+
+export function renderBranch(payload, utils = {}) {
+  const cwd = payload?.workspace?.current_dir || payload?.cwd || process.cwd();
+  const getBranch = utils.getBranch || getBranchNative;
+  const branch = getBranch(cwd);
+  
+  if (branch) {
+    return colors.green(branch);
+  }
+  return '';
+}
+
+export function renderCwdBranch(payload, utils = {}) {
+  const c = renderCwd(payload, utils);
+  const b = renderBranch(payload, utils);
+  if (b) {
+    return `${c}${colors.dim('@')}${b}`;
+  }
+  return c;
 }

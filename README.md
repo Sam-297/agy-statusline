@@ -42,9 +42,12 @@ To customize your HUD, create this file: `~/.config/agy-statusline/config.js`
 You can arrange these built-in strings in any order:
 - `"model"`: e.g. `Gemini Pro`
 - `"cwd_branch"`: e.g. `~@main` or `agy-statusline@feat`
+- `"cwd"`: e.g. `~` or `agy-statusline`
+- `"branch"`: e.g. `main`
 - `"tokens"`: e.g. `1.5k/10k (15%)`
 - `"quota_gemini"`: Google API rate limits (`G·5h ...`)
 - `"quota_anthropic"`: Anthropic API rate limits (`C·5h ...`)
+- `"quota_openai"`: OpenAI API rate limits (`O·5h ...`)
 - `"version"`: e.g. `v1.0.10`
 - `"extras"`: Tool confirmation warnings and sandbox flags
 - `"email_masked"`: Masked email (`s***@gmail.com`)

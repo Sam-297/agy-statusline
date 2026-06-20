@@ -28,7 +28,7 @@ export function renderQuota(payload, provider, utils = {}) {
   
   const h5Key = provider === 'gemini' ? 'gemini-5h' : '3p-5h';
   const weeklyKey = provider === 'gemini' ? 'gemini-weekly' : '3p-weekly';
-  const prefix = provider === 'gemini' ? 'G·' : 'C·';
+  const prefix = provider === 'gemini' ? 'G·' : provider === 'openai' ? 'O·' : 'C·';
   
   const h5 = q[h5Key];
   const weekly = q[weeklyKey];
@@ -47,6 +47,9 @@ export function renderQuota(payload, provider, utils = {}) {
     parts.push(`${colors.white('7d')} ${colorizePct(weekly.remaining_fraction, usedPct)} ${colors.dim('@' + formatDayTime(weekly.reset_time))}`);
   }
   
-  const coloredPrefix = provider === 'gemini' ? colors.googleBlue(prefix) : colors.claudeOrange(prefix);
+  let coloredPrefix = colors.claudeOrange(prefix);
+  if (provider === 'gemini') coloredPrefix = colors.googleBlue(prefix);
+  if (provider === 'openai') coloredPrefix = colors.openaiGreen(prefix);
+  
   return `${coloredPrefix}${parts.join(colors.dim(', '))}`;
 }

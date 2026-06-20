@@ -1,17 +1,21 @@
 import { renderModel } from '../features/session/model.js';
 import { renderVersion } from '../features/session/version.js';
 import { renderExtras } from '../features/session/extras.js';
-import { renderCwdBranch } from '../features/git/cwd-branch.js';
-import colors from './colors.js';
+import { renderCwdBranch, renderCwd, renderBranch } from '../features/git/cwd-branch.js';
 import { renderTokens, formatNumber } from '../features/tokens/tokens.js';
 import { renderQuota } from '../features/quota/quota.js';
+
+import colors from './colors.js';
 
 const SEGMENT_MAP = {
   model: (payload) => renderModel(payload),
   cwd_branch: (payload) => renderCwdBranch(payload),
+  cwd: (payload) => renderCwd(payload),
+  branch: (payload) => renderBranch(payload),
   tokens: (payload) => renderTokens(payload),
   quota_gemini: (payload) => renderQuota(payload, 'gemini'),
   quota_anthropic: (payload) => renderQuota(payload, 'anthropic'),
+  quota_openai: (payload) => renderQuota(payload, 'openai'),
   version: (payload) => renderVersion(payload),
   extras: (payload) => renderExtras(payload),
   
