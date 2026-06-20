@@ -9,7 +9,7 @@
 ![Default Theme](docs/theme_default.png)
 ![Dashboard Theme](docs/theme_dashboard.png)
 
-**[👉 View Full Themes Gallery 👈](themes/README.md)**
+[View the full Themes Gallery →](themes/README.md)
 
 ### Why `agy-statusline`?
 
