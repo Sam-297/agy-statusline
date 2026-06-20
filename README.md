@@ -1,8 +1,8 @@
 # agy-statusline
 
-**A lightweight terminal HUD for the Antigravity CLI (AGY).**
+**A lightweight terminal HUD for the Antigravity CLI (agy).**
 
-`agy-statusline` provides a heads-up display directly in your terminal. It reads the JSON payload from `stdin` and displays relevant status information.
+`agy-statusline` provides a dynamic heads-up display directly in your terminal.
 
 ### 🎨 Featured Themes
 
@@ -15,7 +15,7 @@
 
 - **Local Execution:** Everything happens locally. No waiting on API responses to update your HUD.
 - **Zero Dependencies:** Built lean and mean. Absolutely zero npm runtime dependencies.
-- **Clean Layouts:** The default theme progressively truncates based on your terminal width to fit a single line, while custom themes can support multi-line data displays.
+- **Endless Customizability:** Choose from a gallery of beautiful pre-built themes, or program your own completely custom layout in JavaScript.
 
 Get the data you need, the moment you need it, without slowing down your workflow.
 
