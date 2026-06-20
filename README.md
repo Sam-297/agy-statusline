@@ -62,14 +62,36 @@ You can arrange these built-in strings in any order:
 - `"sandbox"`: Shows 🔒 if sandbox is enabled
 - `"exceeds_200k"`: Shows ⚠>200k warning if true
 
-### Dynamic Payload Extraction
+### Accessing Raw Data (Dynamic Extraction)
 
-If you include a string in your `segments` array that isn't built-in, `agy-statusline` will attempt to extract it directly from the live AGY JSON payload using dot-notation! 
+If you don't like our built-in formatting (e.g., `G·5h` or `1.5k/10k`) and want absolute low-level control, `agy-statusline` exposes the raw JSON payload in two ways:
 
-For example, if you just want the raw input token count, you can simply add:
+#### 1. Dot-Notation Strings (Quick & Raw)
+If you include a string in your `segments` array that isn't built-in, `agy-statusline` will attempt to extract it directly from the live AGY JSON payload using dot-notation.
+
+For example, if you just want the raw input token count without any colors or formatting, add this to your segments:
 `"context_window.current_usage.input_tokens"`
 
-It will instantly render the exact number on your screen without any custom JS.
+It will instantly render the exact number on your screen.
+
+#### 2. JavaScript Functions (Absolute Control)
+For total control over how raw data is parsed and styled, pass a function. Your function receives the live `payload` object directly from AGY.
+
+```javascript
+export default {
+  separator: " • ",
+  segments: [
+    (payload, utils) => {
+      // Access the raw data directly, ignoring our built-in opinionated formatting
+      const gemini = payload?.quota?.['gemini-5h'];
+      if (!gemini) return '';
+      
+      // Build your own exact format!
+      return `Google: ${Math.round(gemini.remaining_fraction * 100)}% left`;
+    }
+  ]
+};
+```
 
 ### Writing Custom Segments
 
