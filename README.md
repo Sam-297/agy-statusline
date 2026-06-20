@@ -17,18 +17,18 @@ Run this simple one-liner to download and install the plugin globally:
 git clone https://github.com/Sam-297/agy-statusline /tmp/agy-statusline && agy plugin install /tmp/agy-statusline && rm -rf /tmp/agy-statusline
 ```
 
-## 🎨 Themes & Examples
+## 🎨 Themes
 
-Check out the [`examples/`](examples/) directory for pre-built themes you can copy and paste!
+Check out the [`themes/`](themes/) directory for pre-built configurations you can copy and paste!
 
-| Default Line | Retro Progress Bar | Ultra-Complex Dashboard |
+| Default Line | Retro Progress Bar | Dashboard |
 |---|---|---|
 | ![Default Theme](docs/theme_default.png) | ![Retro Theme](docs/theme_retro.png) | ![Dashboard Theme](docs/theme_dash.png) |
 | *The classic agy-statusline.* | *Replaces tokens with a progress bar.* | *Multi-line, bordered TUI dashboard.* |
 
 **To use a theme:**
 ```bash
-cp examples/ultra-complex-theme.js ~/.config/agy-statusline/config.js
+cp themes/dashboard.js ~/.config/agy-statusline/config.js
 ```
 
 ## 🛠️ Customizability
@@ -47,8 +47,10 @@ You can arrange these built-in strings in any order:
 - `"quota_anthropic"`: Anthropic API rate limits (`C·5h ...`)
 - `"version"`: e.g. `v1.0.10`
 - `"extras"`: Tool confirmation warnings and sandbox flags
-- `"email"`: Masked email (`s***@gmail.com`)
-- `"session_id"`: Truncated session ID
+- `"email_masked"`: Masked email (`s***@gmail.com`)
+- `"email"`: Full email address
+- `"session_id_short"`: Truncated session ID
+- `"session_id"`: Full session ID
 - `"agent_state"`: Current agent state
 - `"plan_tier"`: Your subscription tier
 - `"product"`: The AGY product name

@@ -16,8 +16,10 @@ const SEGMENT_MAP = {
   extras: (payload) => renderExtras(payload),
   
   // Optional / Extra Segments
-  email: (payload) => payload?.email ? colors.dim(payload.email.replace(/(.).*@/, '$1***@')) : '',
-  session_id: (payload) => payload?.session_id ? colors.dim(`ID:${payload.session_id.substring(0, 8)}`) : '',
+  email_masked: (payload) => payload?.email ? colors.dim(payload.email.replace(/(.).*@/, '$1***@')) : '',
+  email: (payload) => payload?.email ? colors.dim(payload.email) : '',
+  session_id_short: (payload) => payload?.session_id ? colors.dim(`ID:${payload.session_id.substring(0, 8)}`) : '',
+  session_id: (payload) => payload?.session_id ? colors.dim(`ID:${payload.session_id}`) : '',
   agent_state: (payload) => payload?.agent_state ? colors.purple(payload.agent_state) : '',
   plan_tier: (payload) => payload?.plan_tier ? colors.yellow(payload.plan_tier) : '',
   product: (payload) => payload?.product ? colors.cyan(payload.product) : '',
