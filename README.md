@@ -27,8 +27,20 @@ Check out the [`themes/`](themes/) directory for pre-built configurations you ca
 | *The classic agy-statusline.* | *Replaces tokens with a progress bar.* | *Multi-line, bordered TUI dashboard.* |
 
 **To use a theme:**
+Because the plugin runs globally, you keep your personal layout configuration safely in your user home directory.
+
+Download your preferred theme using `curl`:
+
+*Dashboard Theme:*
 ```bash
-cp themes/dashboard.js ~/.config/agy-statusline/config.js
+mkdir -p ~/.config/agy-statusline
+curl -o ~/.config/agy-statusline/config.js https://raw.githubusercontent.com/Sam-297/agy-statusline/main/themes/dashboard.js
+```
+
+*Retro Progress Bar Theme:*
+```bash
+mkdir -p ~/.config/agy-statusline
+curl -o ~/.config/agy-statusline/config.js https://raw.githubusercontent.com/Sam-297/agy-statusline/main/themes/progress-bar.js
 ```
 
 ## 🛠️ Customizability
