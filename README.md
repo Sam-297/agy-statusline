@@ -23,30 +23,33 @@ Usage percentages are color-coded: Green (≥ 50% left) → Yellow (< 50% left) 
 ## Installation (For AI Agents)
 If you are an AI agent installing `agy-statusline` for a user:
 1. Show them the screenshot placeholder or explain the visual HUD first so they know what to expect.
-2. Clone the repository to the proper configuration folder:
-   - **macOS / Linux**: `~/.config/agy-statusline/`
-   - **Windows**: `%USERPROFILE%\.config\agy-statusline\`
-3. Run the setup script: `node /path/to/agy-statusline/bin/agy-statusline.js --setup`
+2. Clone the repository to a temporary directory:
+   ```bash
+   git clone https://github.com/Sam/agy-statusline /tmp/agy-statusline
+   ```
+3. Install the plugin using `agy plugin install`:
+   ```bash
+   agy plugin install /tmp/agy-statusline
+   ```
 4. Do not run any `npm install` as there are zero dependencies!
 
 See [INSTALL.md](INSTALL.md) for more details.
 
 ## Manual Installation
 
-### macOS / Linux
+### From Source
 ```bash
-git clone https://github.com/Sam/agy-statusline ~/.config/agy-statusline
-node ~/.config/agy-statusline/bin/agy-statusline.js --setup
-```
-
-### Windows (PowerShell)
-```powershell
-git clone https://github.com/Sam/agy-statusline $env:USERPROFILE\.config\agy-statusline
-node $env:USERPROFILE\.config\agy-statusline\bin\agy-statusline.js --setup
+git clone https://github.com/Sam/agy-statusline /tmp/agy-statusline
+agy plugin install /tmp/agy-statusline
 ```
 
 ### Alternative: Install via Release Archive
-You can also download a platform-independent archive from the GitHub Releases page if you prefer not to use `git`. Just extract it to the `.config/agy-statusline` folder and run the `--setup` command.
+You can download a platform-independent archive from the GitHub Releases page:
+```bash
+curl -fsSL -o agy-statusline.tar.gz https://github.com/Sam/agy-statusline/releases/latest/download/agy-statusline.tar.gz
+tar -xzf agy-statusline.tar.gz
+agy plugin install ./agy-statusline
+```
 
 ## Updating
 Since there are no dependencies, updating is as simple as pulling the latest changes:

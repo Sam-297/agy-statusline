@@ -12,33 +12,10 @@ if (args.includes('--help')) {
   console.log('Usage: agy-statusline [options]');
   console.log('Options:');
   console.log('  --help     Show help');
-  console.log('  --setup    Auto-configure AGY to use this statusline');
   process.exit(0);
 }
 
-if (args.includes('--setup')) {
-  const agyConfigPath = path.join(os.homedir(), '.gemini', 'antigravity-cli', 'settings.json');
-  if (fs.existsSync(agyConfigPath)) {
-    try {
-      const settings = JSON.parse(fs.readFileSync(agyConfigPath, 'utf8'));
-      const statusLineScript = path.resolve(import.meta.dirname, 'agy-statusline.js');
-      settings.statusLine = settings.statusLine || {};
-      settings.statusLine.command = `node ${statusLineScript}`;
-      
-      const tmpPath = agyConfigPath + '.tmp';
-      fs.writeFileSync(tmpPath, JSON.stringify(settings, null, 2));
-      fs.renameSync(tmpPath, agyConfigPath);
-      console.log('Successfully configured AGY to use agy-statusline!');
-    } catch (e) {
-      console.error('Failed to setup config:', e);
-      process.exit(1);
-    }
-  } else {
-    console.error('AGY settings.json not found at', agyConfigPath);
-    process.exit(1);
-  }
-  process.exit(0);
-}
+
 
 // Read stdin with timeout
 let input = '';
