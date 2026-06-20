@@ -11,10 +11,11 @@ It hooks natively into AGY, reading the internal state stream to render a live, 
 
 ## 🚀 Installation
 
-Install directly via AGY's plugin manager:
+Install the plugin by cloning the repository and registering it with AGY:
 
 ```bash
-agy plugin install github.com/Sam-297/agy-statusline
+git clone https://github.com/Sam-297/agy-statusline ~/.agy-plugins/agy-statusline
+agy plugin install ~/.agy-plugins/agy-statusline
 ```
 
 ## 🎨 Themes
