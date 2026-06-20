@@ -2,19 +2,24 @@ import fs from 'node:fs';
 import path from 'node:path';
 import colors from '../../core/colors.js';
 
+const headPathCache = new Map();
+
 export function getBranchNative(startDir) {
   try {
-    let dir = startDir;
-    let headPath = null;
+    let headPath = headPathCache.get(startDir);
     
-    // Traverse upwards to find .git folder
-    while (dir !== path.parse(dir).root) {
-      const p = path.join(dir, '.git', 'HEAD');
-      if (fs.existsSync(p)) {
-        headPath = p;
-        break;
+    if (headPath === undefined) {
+      let dir = startDir;
+      while (dir !== path.parse(dir).root) {
+        const p = path.join(dir, '.git', 'HEAD');
+        if (fs.existsSync(p)) {
+          headPath = p;
+          break;
+        }
+        dir = path.dirname(dir);
       }
-      dir = path.dirname(dir);
+      headPathCache.set(startDir, headPath || null);
+      if (headPathCache.size > 100) headPathCache.delete(headPathCache.keys().next().value);
     }
     
     if (!headPath) return null;
@@ -30,7 +35,8 @@ export function getBranchNative(startDir) {
 }
 
 export function renderCwd(payload, utils = {}) {
-  const cwd = payload?.workspace?.current_dir || payload?.cwd || process.cwd();
+  let cwd = payload?.workspace?.current_dir || payload?.cwd;
+  if (typeof cwd !== 'string') cwd = process.cwd();
   const homeDir = utils.homeDir || process.env.HOME || process.env.USERPROFILE;
   
   let baseName = path.basename(cwd);
@@ -41,7 +47,8 @@ export function renderCwd(payload, utils = {}) {
 }
 
 export function renderBranch(payload, utils = {}) {
-  const cwd = payload?.workspace?.current_dir || payload?.cwd || process.cwd();
+  let cwd = payload?.workspace?.current_dir || payload?.cwd;
+  if (typeof cwd !== 'string') cwd = process.cwd();
   const getBranch = utils.getBranch || getBranchNative;
   const branch = getBranch(cwd);
   

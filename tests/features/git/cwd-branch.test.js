@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
+import fs from 'node:fs';
 import { renderCwdBranch } from '../../../src/features/git/cwd-branch.js';
 import colors from '../../../src/core/colors.js';
 import path from 'node:path';
@@ -16,4 +17,11 @@ test('renderCwdBranch shows ~ for home dir', () => {
   const utils = { getBranch: () => null, homeDir: '/home/test' };
   const res = renderCwdBranch(payload, utils);
   assert.strictEqual(res, '\x1B[38;2;46;149;153m~\x1B[0m');
+});
+
+test('getBranchNative uses native fs.readFileSync and not execSync', () => {
+  const code = fs.readFileSync(path.resolve(import.meta.dirname, '../../../src/features/git/cwd-branch.js'), 'utf8');
+  assert.ok(!code.includes('execSync'), 'Should not use execSync for git');
+  assert.ok(!code.includes('child_process'), 'Should not use child_process for git');
+  assert.ok(code.includes('fs.readFileSync'), 'Should use fs.readFileSync');
 });

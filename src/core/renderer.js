@@ -20,10 +20,10 @@ const SEGMENT_MAP = {
   extras: (payload) => renderExtras(payload),
   
   // Optional / Extra Segments
-  email_masked: (payload) => payload?.email ? colors.dim(payload.email.replace(/(.).*@/, '$1***@')) : '',
-  email: (payload) => payload?.email ? colors.dim(payload.email) : '',
-  session_id_short: (payload) => payload?.session_id ? colors.dim(`ID:${payload.session_id.substring(0, 8)}`) : '',
-  session_id: (payload) => payload?.session_id ? colors.dim(`ID:${payload.session_id}`) : '',
+  email_masked: (payload) => typeof payload?.email === 'string' ? colors.dim(payload.email.replace(/(.).*@/, '$1***@')) : '',
+  email: (payload) => typeof payload?.email === 'string' ? colors.dim(payload.email) : '',
+  session_id_short: (payload) => typeof payload?.session_id === 'string' ? colors.dim(`ID:${payload.session_id.substring(0, 8)}`) : '',
+  session_id: (payload) => typeof payload?.session_id === 'string' ? colors.dim(`ID:${payload.session_id}`) : '',
   agent_state: (payload) => payload?.agent_state ? colors.purple(payload.agent_state) : '',
   plan_tier: (payload) => payload?.plan_tier ? colors.yellow(payload.plan_tier) : '',
   product: (payload) => payload?.product ? colors.cyan(payload.product) : '',
@@ -37,30 +37,71 @@ function getPayloadPath(obj, path) {
   return path.split('.').reduce((acc, part) => acc && acc[part], obj);
 }
 
+const HIDE_PRIORITY = [
+  'version',
+  'quota_openai',
+  'quota_anthropic',
+  'quota_gemini',
+  'cwd',
+  'branch',
+  'cwd_branch',
+  'tokens',
+  'model'
+];
+
 export function renderStatusLine(payload, config) {
-  const parts = [];
-  
   // Real utilities exposed to user custom segments
   const utils = { colors, formatNumber };
+  let renderedSegments = [];
 
   for (const segment of config.segments) {
+    let res = '';
+    let name = typeof segment === 'string' ? segment : 'custom';
+    
     if (typeof segment === 'function') {
       try {
-        const res = segment(payload, utils);
-        if (res) parts.push(res);
+        res = segment(payload, utils) || '';
       } catch (err) {
-        parts.push(colors.red(`[Error: ${err.message}]`));
+        res = colors.red(`[Error: ${err.message}]`);
       }
     } else if (SEGMENT_MAP[segment]) {
-      const res = SEGMENT_MAP[segment](payload);
-      if (res) parts.push(res);
+      res = SEGMENT_MAP[segment](payload) || '';
     } else if (typeof segment === 'string') {
       // Dynamic fallback: allow querying deep payload paths like "context_window.context_window_size"
       const val = getPayloadPath(payload, segment);
       if (val !== undefined && val !== null) {
-        parts.push(String(val));
+        res = String(val);
       }
     }
+    
+    if (res) {
+      renderedSegments.push({ name, res });
+    }
   }
-  return parts.join(config.separator);
+  
+  const maxWidth = payload?.terminal_width || process.stdout.columns || 80;
+  
+  const getVisibleLength = (segs) => {
+    const raw = segs.map(s => s.res).join(config.separator);
+    return colors.stripAnsi(raw).length;
+  };
+
+  while (renderedSegments.length > 1 && getVisibleLength(renderedSegments) > maxWidth) {
+    let dropIndex = -1;
+    for (const targetName of HIDE_PRIORITY) {
+      const idx = renderedSegments.findIndex(s => s.name === targetName);
+      if (idx !== -1) {
+        dropIndex = idx;
+        break;
+      }
+    }
+    
+    if (dropIndex === -1) {
+      dropIndex = renderedSegments.length - 1;
+    }
+    
+    renderedSegments.splice(dropIndex, 1);
+  }
+
+  return renderedSegments.map(s => s.res).join(config.separator);
 }

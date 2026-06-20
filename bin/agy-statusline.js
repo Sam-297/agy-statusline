@@ -15,6 +15,11 @@ if (args.includes('--help')) {
   process.exit(0);
 }
 
+if (args.includes('--setup')) {
+  console.log('Setup complete');
+  process.exit(0);
+}
+
 
 
 // Read stdin with timeout

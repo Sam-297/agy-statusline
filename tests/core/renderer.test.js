@@ -10,3 +10,15 @@ test('renderStatusLine correctly joins segments', () => {
   assert.match(result, /v1/);
   assert.ok(result.includes(' | '));
 });
+
+test('renderStatusLine supports custom functions', () => {
+  const payload = { tokens: { tokens_used: 10, tokens_total: 100 } };
+  const config = {
+    separator: ' | ',
+    segments: [
+      (payload) => `Custom: ${payload.tokens.tokens_used}`
+    ]
+  };
+  const result = renderStatusLine(payload, config);
+  assert.strictEqual(result, 'Custom: 10');
+});

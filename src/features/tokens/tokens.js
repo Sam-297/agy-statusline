@@ -22,5 +22,5 @@ export function renderTokens(payload) {
   else if (usedPct >= 70) colorFn = colors.orange ? colors.orange : colors.red;
   else if (usedPct >= 50) colorFn = colors.yellow;
 
-  return `${colors.orange(`${formatNumber(used)}/${formatNumber(total)}`)} ${colors.dim('(')}${colorFn(usedPct + '%')}${colors.dim(')')}`;
+  return `${colors.orange(`${formatNumber(used)}/${formatNumber(total)}`)} ${colors.dim('(')}${colorFn(`${usedPct}%`)}${colors.dim(')')}`;
 }

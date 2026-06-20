@@ -11,3 +11,15 @@ test('CLI renders payload correctly', () => {
   assert.ok(stdout.includes('1.2.3'));
   assert.ok(stdout.includes('GPT'));
 });
+
+test('CLI --help prints usage and exits 0', () => {
+  const binPath = path.resolve(import.meta.dirname, '../../bin/agy-statusline.js');
+  const stdout = execSync(`node ${binPath} --help`, { encoding: 'utf8' });
+  assert.match(stdout, /Usage: agy-statusline/);
+});
+
+test('CLI --setup writes config and exits 0', () => {
+  const binPath = path.resolve(import.meta.dirname, '../../bin/agy-statusline.js');
+  const stdout = execSync(`node ${binPath} --setup`, { encoding: 'utf8' });
+  assert.match(stdout, /Setup complete/);
+});
