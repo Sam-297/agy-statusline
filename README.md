@@ -11,9 +11,6 @@ It hooks natively into AGY, reading the internal state stream to render a live, 
 
 ## 🚀 Installation
 
-> [!WARNING]
-> A **Nerd Font** is strictly required for icons to render properly in your terminal. Ensure your emulator uses one.
-
 Install the plugin by cloning the repository and registering it with AGY:
 
 ```bash

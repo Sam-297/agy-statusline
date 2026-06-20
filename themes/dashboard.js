@@ -37,7 +37,7 @@ export default {
       const identity = `${utils.colors.dim('👤')} ${email} ${utils.colors.dim('|')} ID:${sessionId} ${utils.colors.dim('|')} State: ${utils.colors.purple(state)}`;
       const l2 = `${utils.colors.purple('├─')} ${identity}${confirm}${sandbox}`;
       
-      const gitInfo = branch ? ` ${utils.colors.green(' ' + branch)} ` : ' ';
+      const gitInfo = branch ? ` ${utils.colors.green('@' + branch)} ` : ' ';
       const usageText = `${utils.formatNumber(used)}/${utils.formatNumber(total)}`;
       const l3 = `${utils.colors.purple('├─')}${gitInfo}${utils.colors.dim('[')}${coloredBar}${utils.colors.dim(']')} ${usageText} ${utils.colors.dim('|')} 📦${artifacts}`;
       
