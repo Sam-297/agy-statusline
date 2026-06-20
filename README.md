@@ -11,6 +11,9 @@ It hooks natively into AGY, reading the internal state stream to render a live, 
 
 ## 🚀 Installation
 
+> [!WARNING]
+> A **Nerd Font** is strictly required for icons to render properly in your terminal. Ensure your emulator uses one.
+
 Install the plugin by cloning the repository and registering it with AGY:
 
 ```bash
@@ -22,10 +25,17 @@ agy plugin install ~/.agy-plugins/agy-statusline
 
 Check out the [`themes/`](themes/) directory for pre-built configurations you can copy and paste!
 
-| Default Line | Retro Progress Bar | Dashboard |
-|---|---|---|
-| ![Default Theme](docs/theme_default.png) | ![Retro Theme](docs/theme_retro.png) | ![Dashboard Theme](docs/theme_dash.png) |
-| *The classic agy-statusline.* | *Replaces tokens with a progress bar.* | *Multi-line, bordered TUI dashboard.* |
+### Default Line
+![Default Theme](docs/theme_default.png)
+*The classic agy-statusline.*
+
+### Retro Progress Bar
+![Retro Theme](docs/theme_retro.png)
+*Replaces tokens with a progress bar.*
+
+### Dashboard
+![Dashboard Theme](docs/theme_dash.png)
+*Multi-line, bordered TUI dashboard.*
 
 **To use a theme:**
 Because the plugin runs globally, you keep your personal layout configuration safely in your user home directory.
@@ -53,27 +63,43 @@ To customize your HUD, create this file: `~/.config/agy-statusline/config.js`
 ### Available Built-in Segments
 
 You can arrange these built-in strings in any order:
-- `"model"`: e.g. `Gemini Pro`
-- `"cwd_branch"`: e.g. `~@main` or `agy-statusline@feat`
-- `"cwd"`: e.g. `~` or `agy-statusline`
-- `"branch"`: e.g. `main`
-- `"tokens"`: e.g. `1.5k/10k (15%)`
-- `"quota_gemini"`: Google API rate limits (`G·5h ...`)
-- `"quota_anthropic"`: Anthropic API rate limits (`C·5h ...`)
-- `"quota_openai"`: OpenAI API rate limits (`O·5h ...`)
-- `"version"`: e.g. `v1.0.10`
-- `"extras"`: Tool confirmation warnings and sandbox flags
-- `"email_masked"`: Masked email (`s***@gmail.com`)
-- `"email"`: Full email address
-- `"session_id_short"`: Truncated session ID
-- `"session_id"`: Full session ID
-- `"agent_state"`: Current agent state
-- `"plan_tier"`: Your subscription tier
-- `"product"`: The AGY product name
-- `"artifact_count"`: Number of artifacts in the session
-- `"output_tokens"`: Separate output token counter (`Out:15.7k`)
-- `"sandbox"`: Shows 🔒 if sandbox is enabled
-- `"exceeds_200k"`: Shows ⚠>200k warning if true
+
+#### Session & Agent Data
+| Segment | Description |
+|---|---|
+| `"model"` | e.g. `Gemini Pro` |
+| `"agent_state"` | Current agent state |
+| `"session_id_short"` | Truncated session ID |
+| `"session_id"` | Full session ID |
+| `"email"` | Full email address |
+| `"email_masked"` | Masked email (`s***@gmail.com`) |
+| `"plan_tier"` | Your subscription tier |
+| `"product"` | The AGY product name |
+| `"version"` | e.g. `v1.0.10` |
+| `"artifact_count"` | Number of artifacts in the session |
+
+#### Git Integration
+| Segment | Description |
+|---|---|
+| `"cwd_branch"` | e.g. `~@main` or `agy-statusline@feat` |
+| `"cwd"` | e.g. `~` or `agy-statusline` |
+| `"branch"` | e.g. `main` |
+
+#### Quotas & Usage
+| Segment | Description |
+|---|---|
+| `"tokens"` | e.g. `1.5k/10k (15%)` |
+| `"output_tokens"` | Separate output token counter (`Out:15.7k`) |
+| `"quota_gemini"` | Google API rate limits (`G·5h ...`) |
+| `"quota_anthropic"` | Anthropic API rate limits (`C·5h ...`) |
+| `"quota_openai"` | OpenAI API rate limits (`O·5h ...`) |
+| `"exceeds_200k"` | Shows ⚠>200k warning if true |
+
+#### Status & Warnings
+| Segment | Description |
+|---|---|
+| `"extras"` | Tool confirmation warnings and sandbox flags |
+| `"sandbox"` | Shows 🔒 if sandbox is enabled |
 
 ### Accessing Raw Data (Dynamic Extraction)
 
