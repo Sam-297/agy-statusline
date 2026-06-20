@@ -20,7 +20,12 @@ const SEGMENT_MAP = {
   extras: (payload) => renderExtras(payload),
   
   // Optional / Extra Segments
-  email_masked: (payload) => typeof payload?.email === 'string' ? colors.dim(payload.email.replace(/(.).*@/, '$1***@')) : '',
+  email_masked: (payload) => {
+    if (typeof payload?.email !== 'string') return '';
+    const parts = payload.email.split('@');
+    if (parts.length < 2) return colors.dim(payload.email);
+    return colors.dim(parts[0][0] + '***@' + parts[1]);
+  },
   email: (payload) => typeof payload?.email === 'string' ? colors.dim(payload.email) : '',
   session_id_short: (payload) => typeof payload?.session_id === 'string' ? colors.dim(`ID:${payload.session_id.substring(0, 8)}`) : '',
   session_id: (payload) => typeof payload?.session_id === 'string' ? colors.dim(`ID:${payload.session_id}`) : '',
@@ -79,14 +84,15 @@ export function renderStatusLine(payload, config) {
     }
   }
   
-  const maxWidth = payload?.terminal_width || process.stdout.columns || 80;
+  // Safety margin of 2 columns to prevent auto-wrap on the exact last column
+  const safeWidth = (payload?.terminal_width || process.stdout.columns || 80) - 2;
   
   const getVisibleLength = (segs) => {
     const raw = segs.map(s => s.res).join(config.separator);
     return colors.stripAnsi(raw).length;
   };
 
-  while (renderedSegments.length > 1 && getVisibleLength(renderedSegments) > maxWidth) {
+  while (renderedSegments.length > 0 && getVisibleLength(renderedSegments) > safeWidth) {
     let dropIndex = -1;
     for (const targetName of HIDE_PRIORITY) {
       const idx = renderedSegments.findIndex(s => s.name === targetName);

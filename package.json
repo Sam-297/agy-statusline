@@ -7,6 +7,10 @@
     "agy-statusline": "bin/agy-statusline.js"
   },
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": "Sam-297/agy-statusline",
   "scripts": {
     "test": "node --test"
   },

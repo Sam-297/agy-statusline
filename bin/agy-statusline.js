@@ -47,5 +47,5 @@ process.stdin.on('end', async () => {
   const configPath = path.join(os.homedir(), '.config', 'agy-statusline', 'config.js');
   const config = await loadConfig(configPath);
   const output = renderStatusLine(payload, config);
-  console.log(output);
+  process.stdout.write(output);
 });

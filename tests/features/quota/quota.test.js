@@ -21,7 +21,7 @@ test('renderQuota formats google quota with percentage and time', () => {
     formatDayTime: () => 'Fri 14:00'
   });
   
-  const exp = `${colors.googleBlue('G·')}${colors.white('5h')} ${colors.green('27%')} ${colors.dim('@14:00')}${colors.dim(', ')}${colors.white('7d')} ${colors.red('90%')} ${colors.dim('@Fri 14:00')}`;
+  const exp = `${colors.googleBlue('G')}${colors.dim('·')}${colors.white('5h')} ${colors.green('27%')} ${colors.dim('@14:00')}${colors.dim(', ')}${colors.white('7d')} ${colors.red('90%')} ${colors.dim('@Fri 14:00')}`;
   assert.strictEqual(result, exp);
 });
 

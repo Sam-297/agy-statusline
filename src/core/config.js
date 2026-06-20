@@ -26,7 +26,7 @@ export async function loadConfig(configPath) {
   try {
     const absolutePath = path.resolve(configPath);
     // Use dynamic import, append timestamp to bypass cache if needed
-    const userConfig = await import(`file://${absolutePath}`);
+    const userConfig = await import(`file://${absolutePath}?t=${Date.now()}`);
     return { ...DEFAULTS, ...(userConfig.default || {}) };
   } catch (err) {
     // Print the error so the user can actually fix their theme syntax!
