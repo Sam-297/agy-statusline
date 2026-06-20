@@ -1,0 +1,24 @@
+import { test } from 'node:test';
+import assert from 'node:assert';
+import { renderQuota } from '../../../src/features/quota/quota.js';
+import colors from '../../../src/core/colors.js';
+
+test('renderQuota handles missing quota', () => {
+  assert.strictEqual(renderQuota({}, 'gemini'), '');
+});
+
+test('renderQuota formats google quota with percentage and time', () => {
+  const payload = {
+    quota: {
+      'gemini-5h': { remaining_fraction: 0.735, reset_time: "2026-06-20T14:00:00Z" },
+      'gemini-weekly': { remaining_fraction: 0.10, reset_time: "2026-06-23T14:00:00Z" }
+    }
+  };
+  const result = renderQuota(payload, 'gemini', {
+    formatTime: () => '14:00',
+    formatDayTime: () => 'Fri 14:00'
+  });
+  
+  const exp = `${colors.dim('G·')}5h ${colors.green('27%')} ${colors.dim('@14:00')}${colors.dim(', ')}7d ${colors.red('90%')} ${colors.dim('@Fri 14:00')}`;
+  assert.strictEqual(result, exp);
+});
