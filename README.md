@@ -47,6 +47,12 @@ You can arrange these built-in strings in any order:
 - `"quota_anthropic"`: Anthropic API rate limits (`C·5h ...`)
 - `"version"`: e.g. `v1.0.10`
 - `"extras"`: Tool confirmation warnings and sandbox flags
+- `"email"`: Masked email (`s***@gmail.com`)
+- `"session_id"`: Truncated session ID
+- `"agent_state"`: Current agent state
+- `"plan_tier"`: Your subscription tier
+- `"product"`: The AGY product name
+- `"artifact_count"`: Number of artifacts in the session
 
 ### Writing Custom Segments
 

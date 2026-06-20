@@ -7,7 +7,7 @@ import { loadConfig } from '../../src/core/config.js';
 
 test('loadConfig provides defaults when file is missing', async (t) => {
   const config = await loadConfig('/path/does/not/exist.js');
-  assert.strictEqual(config.separator, ' | ');
+  assert.strictEqual(config.separator, '\x1B[2m | \x1B[0m');
   assert.deepStrictEqual(config.segments, ['model', 'cwd_branch', 'tokens', 'quota_gemini', 'quota_anthropic', 'version']);
 });
 

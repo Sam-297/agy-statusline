@@ -13,7 +13,15 @@ const SEGMENT_MAP = {
   quota_gemini: (payload) => renderQuota(payload, 'gemini'),
   quota_anthropic: (payload) => renderQuota(payload, 'anthropic'),
   version: (payload) => renderVersion(payload),
-  extras: (payload) => renderExtras(payload)
+  extras: (payload) => renderExtras(payload),
+  
+  // Optional / Extra Segments
+  email: (payload) => payload?.email ? colors.dim(payload.email.replace(/(.).*@/, '$1***@')) : '',
+  session_id: (payload) => payload?.session_id ? colors.dim(`ID:${payload.session_id.substring(0, 8)}`) : '',
+  agent_state: (payload) => payload?.agent_state ? colors.purple(payload.agent_state) : '',
+  plan_tier: (payload) => payload?.plan_tier ? colors.yellow(payload.plan_tier) : '',
+  product: (payload) => payload?.product ? colors.cyan(payload.product) : '',
+  artifact_count: (payload) => payload?.artifact_count ? `📦${payload.artifact_count}` : ''
 };
 
 export function renderStatusLine(payload, config) {
