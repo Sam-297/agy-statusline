@@ -47,5 +47,6 @@ export function renderQuota(payload, provider, utils = {}) {
     parts.push(`${colors.white('7d')} ${colorizePct(weekly.remaining_fraction, usedPct)} ${colors.dim('@' + formatDayTime(weekly.reset_time))}`);
   }
   
-  return `${colors.white(prefix)}${parts.join(colors.dim(', '))}`;
+  const coloredPrefix = provider === 'gemini' ? colors.googleBlue(prefix) : colors.claudeOrange(prefix);
+  return `${coloredPrefix}${parts.join(colors.dim(', '))}`;
 }
