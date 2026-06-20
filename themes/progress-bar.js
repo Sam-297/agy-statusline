@@ -25,6 +25,7 @@ export default {
       return `Context [${coloredBar}] ${utils.colors.dim(usageText)}`;
     },
     "quota_gemini",
+    "quota_anthropic",
     "version"
   ]
 };

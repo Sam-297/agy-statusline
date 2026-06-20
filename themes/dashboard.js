@@ -1,12 +1,12 @@
 export default {
-  separator: " ",
+  separator: "\n",
   segments: [
     (payload, utils) => {
       const strip = (s) => s.replace(/\x1B\[\d+(;\d+)*m/g, '');
-      const width = payload?.terminal_width || 80;
+      const width = Math.min(100, payload?.terminal_width || 80);
       
       const model = payload?.model?.display_name || "Unknown";
-      const branch = utils.getBranch ? utils.getBranch(process.cwd()) : null;
+      const branch = payload?.git?.branch;
       const cw = payload?.context_window || {};
       const used = (cw.total_input_tokens || 0) + (cw.total_output_tokens || 0);
       const total = cw.context_window_size || 1;
@@ -37,23 +37,28 @@ export default {
       const identity = `${utils.colors.dim('👤')} ${email} ${utils.colors.dim('|')} ID:${sessionId} ${utils.colors.dim('|')} State: ${utils.colors.purple(state)}`;
       const l2 = `${utils.colors.purple('├─')} ${identity}${confirm}${sandbox}`;
       
-      const gitInfo = branch ? ` ${utils.colors.green('@' + branch)} ` : ' ';
-      const usageText = `${utils.formatNumber(used)}/${utils.formatNumber(total)}`;
+      const gitInfo = branch ? ` ${utils.colors.green(' ' + branch)} ` : ' ';
+      const usageText = `${utils.formatNumber ? utils.formatNumber(used) : used}/${utils.formatNumber ? utils.formatNumber(total) : total}`;
       const l3 = `${utils.colors.purple('├─')}${gitInfo}${utils.colors.dim('[')}${coloredBar}${utils.colors.dim(']')} ${usageText} ${utils.colors.dim('|')} 📦${artifacts}`;
       
       let quotas = '';
       if (payload?.quota) {
          const qg = payload.quota['gemini-5h'];
-         const qa = payload.quota['anthropic-5h'];
-         if (qg) quotas += `${utils.colors.googleBlue('G:')}${Math.round((1 - qg.remaining_fraction)*100)}% `;
-         if (qa) quotas += `${utils.colors.claudeOrange('C:')}${Math.round((1 - qa.remaining_fraction)*100)}% `;
+         const qa = payload.quota['3p-5h'] || payload.quota['anthropic-5h'];
+         if (qg) quotas += `${utils.colors.blue('G:')}${Math.round(qg.remaining_fraction*100)}% `;
+         if (qa) quotas += `${utils.colors.orange('C:')}${Math.round(qa.remaining_fraction*100)}% `;
       }
       
       const footerL = `${utils.colors.purple('╰─')} ${quotas}`;
       const footerR = utils.colors.dim('→');
       
-      // Right-align the prompt arrow and draw a horizontal line filling the gap
-      const leftLen = strip(footerL).length;
+      // Calculate true visual width accounting for emojis
+      // 👤 and 📦 usually take 2 columns.
+      let emojiOffset = 0;
+      if (footerL.includes('👤')) emojiOffset += 1;
+      if (footerL.includes('📦')) emojiOffset += 1;
+      
+      const leftLen = strip(footerL).length - emojiOffset;
       const rightLen = strip(footerR).length;
       const space = Math.max(1, width - leftLen - rightLen - 1);
       const filler = utils.colors.purple('─'.repeat(space));
