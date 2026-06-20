@@ -1,61 +1,76 @@
-# agy-statusline
+# ⚡ agy-statusline
 
-![Dependencies: 0](https://img.shields.io/badge/Dependencies-0-success)
-![License: MIT](https://img.shields.io/badge/License-MIT-blue)
+A blazing-fast, infinitely customizable status line plugin for the Antigravity CLI.
 
-A **zero-dependency, instant** status line for the Antigravity CLI (AGY). It reads a JSON payload from **stdin** (passed by AGY on every keystroke) and outputs a styled one-line HUD to stdout. 
+It hooks natively into AGY, reading the internal state stream to render a live, zero-latency HUD on every keystroke. No background polling. No lag.
 
-Zero API polling. Zero flicker. Instant metrics.
+## ✨ Features
+- **Zero Network Lag**: Instant context tracking using AGY's native state stream.
+- **100% Programmable**: Don't like our layout? Write your own custom widgets in pure JavaScript. 
+- **Zero Dependencies**: Pure Node.js. No `node_modules` clutter.
 
-### Screenshot
-![agy-statusline terminal screenshot](docs/screenshot.png)
+## 🚀 Installation
 
-## What It Shows
-A compact, single-line HUD displaying:
-- **Model**: Current model name (e.g., Gemini Pro)
-- **CWD@Branch**: Current folder name and git branch
-- **Tokens**: Used / total context window tokens with dynamic color coding
-- **Quotas**: 5-hour and 7-day rate limit usage percentages and local reset times for Google and Anthropic
-- **Version**: Current AGY version
+Run this simple one-liner to download and install the plugin globally:
 
-Usage percentages are color-coded: Green (≥ 50% left) → Yellow (< 50% left) → Red (< 20% left).
-
-## Installation (For AI Agents)
-If you are an AI agent installing `agy-statusline` for a user:
-1. Show them the screenshot placeholder or explain the visual HUD first so they know what to expect.
-2. Clone the repository to a temporary directory:
-   ```bash
-   git clone https://github.com/Sam/agy-statusline /tmp/agy-statusline
-   ```
-3. Install the plugin using `agy plugin install`:
-   ```bash
-   agy plugin install /tmp/agy-statusline
-   ```
-4. Do not run any `npm install` as there are zero dependencies!
-
-See [INSTALL.md](INSTALL.md) for more details.
-
-## Manual Installation
-
-### From Source
 ```bash
-git clone https://github.com/Sam/agy-statusline /tmp/agy-statusline
-agy plugin install /tmp/agy-statusline
+git clone https://github.com/Sam-297/agy-statusline /tmp/agy-statusline && agy plugin install /tmp/agy-statusline && rm -rf /tmp/agy-statusline
 ```
 
-### Alternative: Install via Release Archive
-You can download a platform-independent archive from the GitHub Releases page:
+## 🎨 Themes & Examples
+
+Check out the [`examples/`](examples/) directory for pre-built themes you can copy and paste!
+
+| Default Line | Retro Progress Bar | Ultra-Complex Dashboard |
+|---|---|---|
+| ![Default Theme](docs/theme_default.png) | ![Retro Theme](docs/theme_retro.png) | ![Dashboard Theme](docs/theme_dash.png) |
+| *The classic agy-statusline.* | *Replaces tokens with a progress bar.* | *Multi-line, bordered TUI dashboard.* |
+
+**To use a theme:**
 ```bash
-curl -fsSL -o agy-statusline.tar.gz https://github.com/Sam/agy-statusline/releases/latest/download/agy-statusline.tar.gz
-tar -xzf agy-statusline.tar.gz
-agy plugin install ./agy-statusline
+cp examples/ultra-complex-theme.js ~/.config/agy-statusline/config.js
 ```
 
-## Updating
-Since there are no dependencies, updating is as simple as pulling the latest changes:
-```bash
-git -C ~/.config/agy-statusline pull
+## 🛠️ Customizability
+
+Unlike plugins that force you to use static JSON, `agy-statusline` is fully programmable.
+
+To customize your HUD, create this file: `~/.config/agy-statusline/config.js`
+
+### Available Built-in Segments
+
+You can arrange these built-in strings in any order:
+- `"model"`: e.g. `Gemini Pro`
+- `"cwd_branch"`: e.g. `~@main` or `agy-statusline@feat`
+- `"tokens"`: e.g. `1.5k/10k (15%)`
+- `"quota_gemini"`: Google API rate limits (`G·5h ...`)
+- `"quota_anthropic"`: Anthropic API rate limits (`C·5h ...`)
+- `"version"`: e.g. `v1.0.10`
+- `"extras"`: Tool confirmation warnings and sandbox flags
+
+### Writing Custom Segments
+
+If the built-ins aren't enough, just write a JavaScript function. Your function receives the live `payload` from AGY, plus a `utils` object loaded with TrueColor ANSI wrappers and number formatters.
+
+```javascript
+export default {
+  separator: " • ",
+  segments: [
+    "model",
+    "cwd_branch",
+    
+    // Write your own segment in pure JS!
+    (payload, utils) => {
+      const mem = process.memoryUsage().heapUsed / 1024 / 1024;
+      return utils.colors.purple(`RAM: ${Math.round(mem)}MB`);
+    },
+    
+    "tokens"
+  ]
+};
 ```
 
-## Privacy & Security
-`agy-statusline` operates purely offline. It does **not** make any network calls. All data is parsed securely from standard input, and sensitive fields (emails, session IDs) are masked or omitted by default.
+
+
+## 🔒 Privacy
+Operates purely offline. All metrics are parsed safely from AGY's internal stream.

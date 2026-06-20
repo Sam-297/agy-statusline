@@ -213,10 +213,15 @@ The `--setup` flag auto-detects the AGY settings.json location and writes the st
 - [ ] `.github/ISSUE_TEMPLATE/feature_request.md`
 
 ### Slice 6: QA + Polish
-- [ ] Security review (no eval, no network calls, safe stdin handling)
-- [ ] Cross-platform testing (path separators, line endings)
-- [ ] Edge cases (missing payload fields, empty stdin, corrupt JSON)
-- [ ] Performance check (must complete in <100ms)
+- [x] Security review (no eval, no network calls, safe stdin handling)
+- [x] Cross-platform testing (path separators, line endings)
+- [x] Edge cases (missing payload fields, empty stdin, corrupt JSON)
+- [x] Performance check (must complete in <100ms)
+
+### Slice 7: Themes & Advanced Examples
+- [ ] Create ultra-complex, multi-line theme examples in `examples/`
+- [ ] Document all built-in segments in README
+- [ ] Add theme screenshot gallery placeholders in README
 
 ---
 
