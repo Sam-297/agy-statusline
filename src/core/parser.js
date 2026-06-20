@@ -5,7 +5,9 @@ export function parsePayload(jsonString) {
   if (jsonString.length > MAX_PAYLOAD_SIZE) return null;
   
   try {
-    return JSON.parse(jsonString);
+    const parsed = JSON.parse(jsonString);
+    if (typeof parsed !== 'object' || Array.isArray(parsed) || parsed === null) return null;
+    return parsed;
   } catch (err) {
     return null;
   }

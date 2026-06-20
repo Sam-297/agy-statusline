@@ -60,7 +60,7 @@ Check out the **[Themes Gallery](themes/README.md)** to see screenshots and inst
 
 ### Write Your Own Custom Layout
 
-If you prefer to write your own configuration from scratch, create `~/.config/agy-statusline/config.js` and export your layout. For example:
+If you prefer to write your own configuration from scratch, create `~/.config/agy-statusline/config.mjs` and export your layout. For example:
 
 ```javascript
 export default {

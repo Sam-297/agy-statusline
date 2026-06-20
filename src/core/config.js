@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import url from 'node:url';
 
 import colors from './colors.js';
 
@@ -25,9 +26,11 @@ export async function loadConfig(configPath) {
   
   try {
     const absolutePath = path.resolve(configPath);
-    // Use dynamic import, append timestamp to bypass cache if needed
-    const userConfig = await import(`file://${absolutePath}?t=${Date.now()}`);
-    return { ...DEFAULTS, ...(userConfig.default || {}) };
+    const userConfig = await import(url.pathToFileURL(absolutePath).href);
+    let uConf = userConfig.default;
+    if (Array.isArray(uConf)) uConf = { segments: uConf };
+    else if (typeof uConf !== 'object' || uConf === null) uConf = {};
+    return { ...DEFAULTS, ...uConf };
   } catch (err) {
     // Print the error so the user can actually fix their theme syntax!
     console.error(`\x1b[38;2;255;85;85m[agy-statusline] Config Error: ${err.message}\x1b[0m`);

@@ -1,2 +1,2 @@
 @echo off
-node "%~dp0\agy-statusline.js" %*
+node "%~dp0\agy-statusline" %*

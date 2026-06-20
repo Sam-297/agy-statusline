@@ -1,5 +1,3 @@
 #!/usr/bin/env sh
 set -eu
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
-exec node "$ROOT_DIR/bin/agy-statusline.js" "$@"
+exec node "$(dirname "$0")/../bin/agy-statusline" "$@"

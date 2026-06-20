@@ -2,9 +2,8 @@
   "name": "agy-statusline",
   "version": "1.0.0",
   "description": "A zero-dependency, instant status line for the Antigravity CLI",
-  "main": "bin/agy-statusline.js",
   "bin": {
-    "agy-statusline": "bin/agy-statusline.js"
+    "agy-statusline": "bin/agy-statusline"
   },
   "type": "module",
   "engines": {

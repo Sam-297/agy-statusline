@@ -8,16 +8,16 @@ import { renderQuota } from '../features/quota/quota.js';
 import colors from './colors.js';
 
 const SEGMENT_MAP = {
-  model: (payload) => renderModel(payload),
-  cwd_branch: (payload) => renderCwdBranch(payload),
-  cwd: (payload) => renderCwd(payload),
-  branch: (payload) => renderBranch(payload),
-  tokens: (payload) => renderTokens(payload),
-  quota_gemini: (payload) => renderQuota(payload, 'gemini'),
-  quota_anthropic: (payload) => renderQuota(payload, 'anthropic'),
-  quota_openai: (payload) => renderQuota(payload, 'openai'),
-  version: (payload) => renderVersion(payload),
-  extras: (payload) => renderExtras(payload),
+  model: (payload, utils) => renderModel(payload, utils),
+  cwd_branch: (payload, utils) => renderCwdBranch(payload, utils),
+  cwd: (payload, utils) => renderCwd(payload, utils),
+  branch: (payload, utils) => renderBranch(payload, utils),
+  tokens: (payload, utils) => renderTokens(payload, utils),
+  quota_gemini: (payload, utils) => renderQuota(payload, 'gemini', utils),
+  quota_anthropic: (payload, utils) => renderQuota(payload, 'anthropic', utils),
+  quota_openai: (payload, utils) => renderQuota(payload, 'openai', utils),
+  version: (payload, utils) => renderVersion(payload, utils),
+  extras: (payload, utils) => renderExtras(payload, utils),
   
   // Optional / Extra Segments
   email_masked: (payload) => {
@@ -27,8 +27,8 @@ const SEGMENT_MAP = {
     return colors.dim(parts[0][0] + '***@' + parts[1]);
   },
   email: (payload) => typeof payload?.email === 'string' ? colors.dim(payload.email) : '',
-  session_id_short: (payload) => typeof payload?.session_id === 'string' ? colors.dim(`ID:${payload.session_id.substring(0, 8)}`) : '',
-  session_id: (payload) => typeof payload?.session_id === 'string' ? colors.dim(`ID:${payload.session_id}`) : '',
+  session_id_short: (payload) => typeof payload?.session_id === 'string' ? colors.dim(`ID:s***`) : '',
+  session_id: (payload) => typeof payload?.session_id === 'string' ? colors.dim(`ID:s***`) : '',
   agent_state: (payload) => payload?.agent_state ? colors.purple(payload.agent_state) : '',
   plan_tier: (payload) => payload?.plan_tier ? colors.yellow(payload.plan_tier) : '',
   product: (payload) => payload?.product ? colors.cyan(payload.product) : '',
@@ -39,7 +39,10 @@ const SEGMENT_MAP = {
 };
 
 function getPayloadPath(obj, path) {
-  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  return path.split('.').reduce((acc, part) => {
+    if (part === '__proto__' || part === 'constructor' || part === 'prototype') return undefined;
+    return acc == null ? undefined : acc[part];
+  }, obj);
 }
 
 const HIDE_PRIORITY = [
@@ -54,10 +57,12 @@ const HIDE_PRIORITY = [
   'model'
 ];
 
-export function renderStatusLine(payload, config) {
+export async function renderStatusLine(payload, config) {
   // Real utilities exposed to user custom segments
   const utils = { colors, formatNumber };
   let renderedSegments = [];
+  
+  if (!Array.isArray(config.segments)) config.segments = ['cwd_branch'];
 
   for (const segment of config.segments) {
     let res = '';
@@ -65,12 +70,16 @@ export function renderStatusLine(payload, config) {
     
     if (typeof segment === 'function') {
       try {
-        res = segment(payload, utils) || '';
+        res = (await segment(payload, utils)) || '';
       } catch (err) {
         res = colors.red(`[Error: ${err.message}]`);
       }
     } else if (SEGMENT_MAP[segment]) {
-      res = SEGMENT_MAP[segment](payload) || '';
+      try {
+        res = (await SEGMENT_MAP[segment](payload, utils)) || '';
+      } catch (err) {
+        res = colors.red(`[Error: ${err.message}]`);
+      }
     } else if (typeof segment === 'string') {
       // Dynamic fallback: allow querying deep payload paths like "context_window.context_window_size"
       const val = getPayloadPath(payload, segment);
@@ -79,34 +88,43 @@ export function renderStatusLine(payload, config) {
       }
     }
     
-    if (res) {
-      renderedSegments.push({ name, res });
+    if (res !== undefined && res !== null && res !== '') {
+      res = String(res) + '\x1b[0m'; // Prevent color bleeding
+      const visLen = Array.from(colors.stripAnsi(res)).length; // Fix ZWJ emoji length
+      renderedSegments.push({ name, res, visLen });
     }
   }
   
   // Safety margin of 2 columns to prevent auto-wrap on the exact last column
-  const safeWidth = (payload?.terminal_width || process.stdout.columns || 80) - 2;
+  const payloadWidth = typeof payload?.terminal_width === 'number' ? payload.terminal_width : null;
+  const safeWidth = payloadWidth === 0 ? Infinity : (payloadWidth || process.stdout.columns || 80) - 2;
   
-  const getVisibleLength = (segs) => {
-    const raw = segs.map(s => s.res).join(config.separator);
-    return colors.stripAnsi(raw).length;
-  };
+  let sepStr = '';
+  try { sepStr = String(config.separator); } catch(e) { sepStr = ' | '; }
+  const separatorLength = Array.from(colors.stripAnsi(sepStr)).length;
+  let totalLength = renderedSegments.reduce((acc, s) => acc + s.visLen, 0) + Math.max(0, renderedSegments.length - 1) * separatorLength;
 
-  while (renderedSegments.length > 0 && getVisibleLength(renderedSegments) > safeWidth) {
+  const priorityMap = new Map();
+  HIDE_PRIORITY.forEach((name, idx) => priorityMap.set(name, idx));
+
+  while (renderedSegments.length > 0 && totalLength > safeWidth) {
     let dropIndex = -1;
-    for (const targetName of HIDE_PRIORITY) {
-      const idx = renderedSegments.findIndex(s => s.name === targetName);
-      if (idx !== -1) {
-        dropIndex = idx;
-        break;
+    let minPriority = Infinity;
+    for (let i = 0; i < renderedSegments.length; i++) {
+      const p = priorityMap.has(renderedSegments[i].name) ? priorityMap.get(renderedSegments[i].name) : Infinity;
+      if (p < minPriority) {
+        minPriority = p;
+        dropIndex = i;
       }
     }
     
-    if (dropIndex === -1) {
+    if (dropIndex === -1 || minPriority === Infinity) {
       dropIndex = renderedSegments.length - 1;
     }
     
-    renderedSegments.splice(dropIndex, 1);
+    const dropped = renderedSegments.splice(dropIndex, 1)[0];
+    totalLength -= dropped.visLen;
+    if (renderedSegments.length > 0) totalLength -= separatorLength;
   }
 
   return renderedSegments.map(s => s.res).join(config.separator);

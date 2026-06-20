@@ -15,7 +15,7 @@ To apply a theme, simply copy the theme file to your AGY configuration folder. O
 To go back to the standard, minimalist default look, simply delete your configuration file:
 
 ```bash
-rm -f ~/.config/agy-statusline/config.js
+rm -f ~/.config/agy-statusline/config.mjs
 ```
 
 ### Cyberpunk
@@ -23,7 +23,7 @@ rm -f ~/.config/agy-statusline/config.js
 ![Cyberpunk Theme](../docs/theme_cyberpunk.png)
 
 ```bash
-cp ~/.agy-plugins/agy-statusline/themes/cyberpunk.js ~/.config/agy-statusline/config.js
+cp ~/.agy-plugins/agy-statusline/themes/cyberpunk.js ~/.config/agy-statusline/config.mjs
 ```
 
 ### Dashboard
@@ -31,7 +31,7 @@ cp ~/.agy-plugins/agy-statusline/themes/cyberpunk.js ~/.config/agy-statusline/co
 ![Dashboard Theme](../docs/theme_dashboard.png)
 
 ```bash
-cp ~/.agy-plugins/agy-statusline/themes/dashboard.js ~/.config/agy-statusline/config.js
+cp ~/.agy-plugins/agy-statusline/themes/dashboard.js ~/.config/agy-statusline/config.mjs
 ```
 
 ### Elegant
@@ -39,7 +39,7 @@ cp ~/.agy-plugins/agy-statusline/themes/dashboard.js ~/.config/agy-statusline/co
 ![Elegant Theme](../docs/theme_elegant.png)
 
 ```bash
-cp ~/.agy-plugins/agy-statusline/themes/elegant.js ~/.config/agy-statusline/config.js
+cp ~/.agy-plugins/agy-statusline/themes/elegant.js ~/.config/agy-statusline/config.mjs
 ```
 
 ### Progress Bar
@@ -47,7 +47,7 @@ cp ~/.agy-plugins/agy-statusline/themes/elegant.js ~/.config/agy-statusline/conf
 ![Progress Bar Theme](../docs/theme_progress-bar.png)
 
 ```bash
-cp ~/.agy-plugins/agy-statusline/themes/progress-bar.js ~/.config/agy-statusline/config.js
+cp ~/.agy-plugins/agy-statusline/themes/progress-bar.js ~/.config/agy-statusline/config.mjs
 ```
 
 ### Retro
@@ -55,7 +55,7 @@ cp ~/.agy-plugins/agy-statusline/themes/progress-bar.js ~/.config/agy-statusline
 ![Retro Theme](../docs/theme_retro.png)
 
 ```bash
-cp ~/.agy-plugins/agy-statusline/themes/retro.js ~/.config/agy-statusline/config.js
+cp ~/.agy-plugins/agy-statusline/themes/retro.js ~/.config/agy-statusline/config.mjs
 ```
 
 ---
@@ -66,10 +66,10 @@ If you are on Windows using PowerShell, the commands are slightly different:
 
 **Apply a Theme:**
 ```powershell
-Copy-Item -Path $HOME\.agy-plugins\agy-statusline\themes\cyberpunk.js -Destination $HOME\.config\agy-statusline\config.js -Force
+Copy-Item -Path $HOME\.agy-plugins\agy-statusline\themes\cyberpunk.js -Destination $HOME\.config\agy-statusline\config.mjs -Force
 ```
 
 **Revert to Default:**
 ```powershell
-Remove-Item -Path $HOME\.config\agy-statusline\config.js -Force -ErrorAction SilentlyContinue
+Remove-Item -Path $HOME\.config\agy-statusline\config.mjs -Force -ErrorAction SilentlyContinue
 ```

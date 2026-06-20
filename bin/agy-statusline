@@ -1,0 +1,84 @@
+#!/usr/bin/env node
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { parsePayload } from '../src/core/parser.js';
+import { loadConfig } from '../src/core/config.js';
+import { renderStatusLine } from '../src/core/renderer.js';
+
+const args = process.argv.slice(2);
+
+const firstArg = args[0];
+
+if (firstArg === '--help' || firstArg === '-h') {
+  console.log('Usage: agy-statusline [options]');
+  console.log('Options:');
+  console.log('  -h, --help     Show help');
+  console.log('  -v, --version  Show version');
+  process.exit(0);
+}
+
+if (firstArg === '--version' || firstArg === '-v') {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url)));
+    console.log(pkg.version);
+  } catch (e) {
+    console.log('1.0.0');
+  }
+  process.exit(0);
+}
+
+if (firstArg === '--setup') {
+  console.log('Setup complete');
+  process.exit(0);
+}
+
+if (firstArg && firstArg.startsWith('-')) {
+  console.error(`Unknown option: ${firstArg}`);
+  process.exit(1);
+}
+
+if (process.stdin.isTTY) {
+  console.error('Error: agy-statusline requires JSON payload piped via stdin');
+  process.exit(1);
+}
+
+// Suppress EPIPE errors if the pipeline is closed early
+process.stdout.on('error', (err) => {
+  if (err.code === 'EPIPE') process.exit(0);
+});
+process.stdin.on('error', () => process.exit(0));
+
+// Read stdin with timeout
+let input = '';
+let timeout = setTimeout(() => {
+  process.exit(0);
+}, 1500);
+
+process.stdin.setEncoding('utf8');
+let inputBytes = 0;
+process.stdin.on('data', chunk => {
+  inputBytes += Buffer.byteLength(chunk, 'utf8');
+  if (inputBytes > 64 * 1024) {
+    process.exit(1);
+  }
+  input += chunk;
+});
+
+process.stdin.on('end', async () => {
+  const payload = parsePayload(input);
+  if (!payload) process.exit(0);
+  const home = os.homedir() || process.env.HOME || process.env.USERPROFILE || '/';
+  const configPath = path.join(home, '.config', 'agy-statusline', 'config.mjs');
+  const config = await loadConfig(configPath);
+  let output = await renderStatusLine(payload, config);
+  if (os.platform() === 'win32') {
+    output = output.replace(/(?<!\r)\n/g, '\r\n');
+  }
+  clearTimeout(timeout);
+  if (process.stdout.write(output)) {
+    process.exit(0);
+  } else {
+    process.stdout.once('drain', () => process.exit(0));
+  }
+});

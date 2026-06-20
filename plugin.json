@@ -6,7 +6,7 @@
     "hooks": [
       {
         "type": "status-line",
-        "command": "node bin/agy-statusline.js"
+        "command": "node bin/agy-statusline"
       }
     ]
   }

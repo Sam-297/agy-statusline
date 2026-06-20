@@ -1,11 +1,11 @@
 export default {
   separator: "\x1B[2m | \x1B[0m",
   segments: [
-    "model",
     "cwd_branch",
+    "version",
+    "model",
     "tokens",
     "quota_gemini",
-    "quota_anthropic",
-    "version"
+    "quota_anthropic"
   ]
 };
