@@ -29,7 +29,8 @@ export async function loadConfig(configPath) {
     const userConfig = await import(`file://${absolutePath}`);
     return { ...DEFAULTS, ...(userConfig.default || {}) };
   } catch (err) {
-    // If import fails (e.g. syntax error), fallback to defaults
+    // Print the error so the user can actually fix their theme syntax!
+    console.error(`\x1b[38;2;255;85;85m[agy-statusline] Config Error: ${err.message}\x1b[0m`);
     return { ...DEFAULTS };
   }
 }

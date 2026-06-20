@@ -2,10 +2,23 @@ import fs from 'node:fs';
 import path from 'node:path';
 import colors from '../../core/colors.js';
 
-export function getBranchNative(dir) {
+export function getBranchNative(startDir) {
   try {
-    const headPath = path.join(dir, '.git', 'HEAD');
-    if (!fs.existsSync(headPath)) return null;
+    let dir = startDir;
+    let headPath = null;
+    
+    // Traverse upwards to find .git folder
+    while (dir !== path.parse(dir).root) {
+      const p = path.join(dir, '.git', 'HEAD');
+      if (fs.existsSync(p)) {
+        headPath = p;
+        break;
+      }
+      dir = path.dirname(dir);
+    }
+    
+    if (!headPath) return null;
+    
     const head = fs.readFileSync(headPath, 'utf8').trim();
     if (head.startsWith('ref: ')) {
       return head.split('/').pop();

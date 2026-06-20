@@ -24,11 +24,13 @@ const timeout = setTimeout(() => {
 }, 1500);
 
 process.stdin.setEncoding('utf8');
+let inputBytes = 0;
 process.stdin.on('data', chunk => {
-  input += chunk;
-  if (Buffer.byteLength(input, 'utf8') > 64 * 1024) {
+  inputBytes += Buffer.byteLength(chunk, 'utf8');
+  if (inputBytes > 64 * 1024) {
     process.exit(1);
   }
+  input += chunk;
 });
 
 process.stdin.on('end', async () => {
