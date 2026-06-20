@@ -2,3 +2,11 @@ node_modules/
 .DS_Store
 *.log
 coverage/
+
+# AI Agent custom rules & docs
+.agents/
+ARCHITECTURE.md
+progress.md
+build_plan.md
+payload_verification.md
+docs/superpowers/
