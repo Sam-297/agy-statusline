@@ -1,0 +1,32 @@
+{
+  "name": "agy-statusline",
+  "version": "1.0.0",
+  "description": "Zero latency, zero dependency status line for the Antigravity CLI",
+  "main": "bin/agy-statusline.js",
+  "bin": {
+    "agy-statusline": "bin/agy-statusline.js"
+  },
+  "scripts": {
+    "test": "node --test tests/**/*.test.js",
+    "lint": "eslint src/**/*.js bin/**/*.js",
+    "format": "prettier --write .",
+    "prepare": "husky"
+  },
+  "author": "Sam",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.0.0"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.json": [
+      "prettier --write"
+    ]
+  }
+}
