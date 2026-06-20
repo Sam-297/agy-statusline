@@ -10,3 +10,11 @@ progress.md
 build_plan.md
 payload_verification.md
 docs/superpowers/
+
+# Temp screenshot files
+*.ans
+dummy.json
+screenshot.js
+freeze
+freeze.tar.gz
+freeze_*/

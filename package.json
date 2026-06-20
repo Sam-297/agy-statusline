@@ -3,10 +3,25 @@
   "version": "1.0.0",
   "description": "A zero-dependency, instant status line for the Antigravity CLI",
   "main": "bin/agy-statusline.js",
+  "bin": {
+    "agy-statusline": "bin/agy-statusline.js"
+  },
   "type": "module",
   "scripts": {
     "test": "node --test"
   },
   "author": "Sam",
-  "license": "MIT"
+  "license": "MIT",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^10.1.8"
+  }
 }

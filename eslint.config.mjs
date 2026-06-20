@@ -1,7 +1,9 @@
 import js from "@eslint/js";
+import eslintConfigPrettier from "eslint-config-prettier";
 
 export default [
   js.configs.recommended,
+  eslintConfigPrettier,
   {
     languageOptions: {
       ecmaVersion: 2024,
@@ -9,7 +11,14 @@ export default [
       globals: {
         node: true,
         console: true,
-        process: true
+        process: true,
+        describe: "readonly",
+        it: "readonly",
+        before: "readonly",
+        after: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        mock: "readonly"
       }
     },
     rules: {
