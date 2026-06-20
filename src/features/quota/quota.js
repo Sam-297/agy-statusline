@@ -2,8 +2,9 @@ import colors from '../../core/colors.js';
 
 function colorizePct(remainingFraction, usedPct) {
   const text = `${usedPct}%`;
-  if (remainingFraction < 0.2) return colors.red(text);
-  if (remainingFraction < 0.5) return colors.yellow(text);
+  if (usedPct >= 90) return colors.red(text);
+  if (usedPct >= 70) return colors.orange ? colors.orange(text) : colors.red(text);
+  if (usedPct >= 50) return colors.yellow(text);
   return colors.green(text);
 }
 

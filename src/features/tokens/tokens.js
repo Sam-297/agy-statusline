@@ -1,5 +1,11 @@
 import colors from '../../core/colors.js';
 
+function formatNumber(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return num.toString();
+}
+
 export function renderTokens(payload) {
   const cw = payload?.context_window;
   if (!cw || typeof cw.total_input_tokens !== 'number' || !cw.context_window_size) return '';
@@ -10,11 +16,10 @@ export function renderTokens(payload) {
   const total = cw.context_window_size;
   
   const usedPct = Math.round((used / total) * 100);
-  const remainingFraction = 1 - (used / total);
+  const text = `${formatNumber(used)}/${formatNumber(total)} (${usedPct}%)`;
   
-  const text = `${used}/${total} (${usedPct}%)`;
-  
-  if (remainingFraction < 0.2) return colors.red(text);
-  if (remainingFraction < 0.5) return colors.yellow(text);
+  if (usedPct >= 90) return colors.red(text);
+  if (usedPct >= 70) return colors.orange ? colors.orange(text) : colors.red(text);
+  if (usedPct >= 50) return colors.yellow(text);
   return colors.green(text);
 }
