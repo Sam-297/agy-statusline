@@ -1,5 +1,13 @@
 {
   "name": "agy-statusline",
   "version": "1.0.0",
-  "description": "Zero-latency, zero-dependency status line for Antigravity"
+  "description": "Zero-latency, zero-dependency status line for Antigravity",
+  "components": {
+    "hooks": [
+      {
+        "type": "status-line",
+        "command": "hooks/status-line.sh"
+      }
+    ]
+  }
 }
