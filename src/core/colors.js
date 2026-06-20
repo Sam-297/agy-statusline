@@ -7,9 +7,12 @@ const wrap = (code, text) => {
 
 export default {
   dim: (text) => wrap('\x1b[2m', text),
-  green: (text) => wrap('\x1b[32m', text),
-  orange: (text) => wrap('\x1b[38;5;208m', text),
-  blue: (text) => wrap('\x1b[34m', text),
-  red: (text) => wrap('\x1b[31m', text),
-  yellow: (text) => wrap('\x1b[33m', text),
+  blue: (text) => wrap('\x1b[38;2;0;153;255m', text),
+  orange: (text) => wrap('\x1b[38;2;255;176;85m', text),
+  green: (text) => wrap('\x1b[38;2;0;160;0m', text),
+  cyan: (text) => wrap('\x1b[38;2;46;149;153m', text),
+  red: (text) => wrap('\x1b[38;2;255;85;85m', text),
+  yellow: (text) => wrap('\x1b[38;2;230;200;0m', text),
+  purple: (text) => wrap('\x1b[38;2;167;139;250m', text),
+  white: (text) => wrap('\x1b[38;2;220;220;220m', text)
 };

@@ -16,10 +16,11 @@ export function renderTokens(payload) {
   const total = cw.context_window_size;
   
   const usedPct = Math.round((used / total) * 100);
-  const text = `${formatNumber(used)}/${formatNumber(total)} (${usedPct}%)`;
   
-  if (usedPct >= 90) return colors.red(text);
-  if (usedPct >= 70) return colors.orange ? colors.orange(text) : colors.red(text);
-  if (usedPct >= 50) return colors.yellow(text);
-  return colors.green(text);
+  let colorFn = colors.green;
+  if (usedPct >= 90) colorFn = colors.red;
+  else if (usedPct >= 70) colorFn = colors.orange ? colors.orange : colors.red;
+  else if (usedPct >= 50) colorFn = colors.yellow;
+
+  return `${colors.orange(`${formatNumber(used)}/${formatNumber(total)}`)} ${colors.dim('(')}${colorFn(usedPct + '%')}${colors.dim(')')}`;
 }

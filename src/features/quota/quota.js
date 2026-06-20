@@ -40,12 +40,12 @@ export function renderQuota(payload, provider, utils = {}) {
   let parts = [];
   if (h5) {
     const usedPct = Math.round((1 - h5.remaining_fraction) * 100);
-    parts.push(`5h ${colorizePct(h5.remaining_fraction, usedPct)} ${colors.dim('@' + formatTime(h5.reset_time))}`);
+    parts.push(`${colors.white('5h')} ${colorizePct(h5.remaining_fraction, usedPct)} ${colors.dim('@' + formatTime(h5.reset_time))}`);
   }
   if (weekly) {
     const usedPct = Math.round((1 - weekly.remaining_fraction) * 100);
-    parts.push(`7d ${colorizePct(weekly.remaining_fraction, usedPct)} ${colors.dim('@' + formatDayTime(weekly.reset_time))}`);
+    parts.push(`${colors.white('7d')} ${colorizePct(weekly.remaining_fraction, usedPct)} ${colors.dim('@' + formatDayTime(weekly.reset_time))}`);
   }
   
-  return `${colors.dim(prefix)}${parts.join(colors.dim(', '))}`;
+  return `${colors.white(prefix)}${parts.join(colors.dim(', '))}`;
 }

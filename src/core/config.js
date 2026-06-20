@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import colors from './colors.js';
+
 const DEFAULTS = {
-  separator: ' | ',
+  separator: colors.dim(' | '),
   hide_openai: true,
   google_label: 'G',
   anthropic_label: 'C',

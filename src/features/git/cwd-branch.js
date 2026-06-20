@@ -28,7 +28,7 @@ export function renderCwdBranch(payload, utils = {}) {
   
   const branch = getBranch(cwd);
   if (branch) {
-    return `${baseName}${colors.dim('@')}${colors.green(branch)}`;
+    return `${colors.cyan(baseName)}${colors.dim('@')}${colors.green(branch)}`;
   }
-  return baseName;
+  return colors.cyan(baseName);
 }
