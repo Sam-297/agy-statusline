@@ -14,6 +14,7 @@ export default {
   red: (text) => wrap('\x1b[38;2;255;85;85m', text),
   yellow: (text) => wrap('\x1b[38;2;230;200;0m', text),
   purple: (text) => wrap('\x1b[38;2;167;139;250m', text),
+  white: (text) => wrap('\x1b[38;2;220;220;220m', text),
   googleBlue: (text) => wrap('\x1b[38;2;66;133;244m', text),
   claudeOrange: (text) => wrap('\x1b[38;2;217;119;87m', text)
 };
