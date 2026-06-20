@@ -45,8 +45,12 @@ export function renderStatusLine(payload, config) {
 
   for (const segment of config.segments) {
     if (typeof segment === 'function') {
-      const res = segment(payload, utils);
-      if (res) parts.push(res);
+      try {
+        const res = segment(payload, utils);
+        if (res) parts.push(res);
+      } catch (err) {
+        parts.push(colors.red(`[Error: ${err.message}]`));
+      }
     } else if (SEGMENT_MAP[segment]) {
       const res = SEGMENT_MAP[segment](payload);
       if (res) parts.push(res);
