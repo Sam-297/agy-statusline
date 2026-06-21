@@ -115,7 +115,7 @@ export default {
 #### Available Built-in Segments
 
 You can mix and match any of these pre-built strings in your `segments` array:
-`"model"`, `"cwd_branch"`, `"cwd"`, `"branch"`, `"tokens"`, `"quota_gemini"`, `"quota_anthropic"`, `"quota_openai"`, `"version"`, `"extras"`, `"agent_state"`, `"plan_tier"`, `"product"`, `"email"`, `"email_masked"`, `"artifact_count"`, `"sandbox"`, `"exceeds_200k"`.
+`"model"`, `"cwd_branch"`, `"cwd"`, `"branch"`, `"tokens"`, `"output_tokens"`, `"quota_gemini"`, `"quota_anthropic"`, `"quota_openai"`, `"version"`, `"extras"`, `"agent_state"`, `"plan_tier"`, `"product"`, `"session_id"`, `"session_id_short"`, `"email"`, `"email_masked"`, `"artifact_count"`, `"sandbox"`, `"exceeds_200k"`.
 
 ### Managing Your Themes
 
