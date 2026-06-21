@@ -35,7 +35,7 @@ export function handleThemeCommand(args) {
     const saveName = validateName(args[saveIdx + 1]);
     if (!fs.existsSync(configPath)) throw new Error('No active config to save.');
     const targetSave = path.join(themesDir, `${saveName}.mjs`);
-    fs.copyFileSync(configPath, targetSave);
+    atomicWriteSync(targetSave, fs.readFileSync(configPath, 'utf8'));
     console.error(`Saved custom theme: ${saveName}`);
     return true;
   }
