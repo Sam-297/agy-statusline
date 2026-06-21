@@ -22,11 +22,16 @@ export function handleThemeCommand(args) {
   if (args.includes('--list-themes')) {
     console.error('Built-in Themes:');
     if (fs.existsSync(builtInThemesDir)) {
-      const items = fs.readdirSync(builtInThemesDir);
-      items.filter(i => i.endsWith('.js')).forEach(i => console.error(` - ${i.replace('.js', '')}`));
+      const items = fs.readdirSync(builtInThemesDir).filter(i => i.endsWith('.js'));
+      if (items.length > 0) items.forEach(i => console.error(` - ${i.replace('.js', '')}`));
+      else console.error(' - (None)');
+    } else {
+      console.error(' - (None)');
     }
     console.error('\nCustom Themes:');
-    fs.readdirSync(themesDir).filter(f => f.endsWith('.mjs')).forEach(f => console.error(` - ${f.replace('.mjs', '')}`));
+    const customItems = fs.readdirSync(themesDir).filter(f => f.endsWith('.mjs'));
+    if (customItems.length > 0) customItems.forEach(f => console.error(` - ${f.replace('.mjs', '')}`));
+    else console.error(' - (None)');
     return true;
   }
 

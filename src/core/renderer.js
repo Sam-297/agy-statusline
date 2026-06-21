@@ -90,7 +90,8 @@ export async function renderStatusLine(payload, config) {
     
     if (res !== undefined && res !== null && res !== '') {
       res = String(res) + '\x1b[0m'; // Prevent color bleeding
-      const visLen = Array.from(colors.stripAnsi(res)).length; // Fix ZWJ emoji length
+      const strippedLines = colors.stripAnsi(res).split('\n');
+      const visLen = Math.max(...strippedLines.map(l => Array.from(l).length)); // Fix ZWJ emoji length
       renderedSegments.push({ name, res, visLen });
     }
   }

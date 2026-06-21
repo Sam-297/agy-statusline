@@ -115,23 +115,11 @@ export default {
 #### Available Built-in Segments
 
 You can mix and match any of these pre-built strings in your `segments` array:
-
-- `"model"`: The active AI model
-- `"cwd_branch"`: Current working directory + Git branch
-- `"cwd"`: Just the current working directory
-- `"branch"`: Just the Git branch
-- `"tokens"`: Context window usage (Input/Output tokens + percentage)
-- `"quota_gemini"`, `"quota_anthropic"`, `"quota_openai"`: API quota and reset times
-- `"version"`: `agy` CLI version
-- `"extras"`: Active flags (e.g. read-only mode)
-- `"agent_state"`: Current agent status
-- `"plan_tier"`, `"product"`: Subscription information
-- `"email"`, `"email_masked"`: User account email
-- `"artifact_count"`: Number of active artifacts
-- `"sandbox"`: Displays a lock if the sandbox is enabled
-- `"exceeds_200k"`: Warning indicator for large contexts
+`"model"`, `"cwd_branch"`, `"cwd"`, `"branch"`, `"tokens"`, `"quota_gemini"`, `"quota_anthropic"`, `"quota_openai"`, `"version"`, `"extras"`, `"agent_state"`, `"plan_tier"`, `"product"`, `"email"`, `"email_masked"`, `"artifact_count"`, `"sandbox"`, `"exceeds_200k"`.
 
 *(Advanced: You can also pass any deep JSON path from the raw `agy` payload as a string, e.g. `"context_window.context_window_size"`, and it will render it automatically!)*
+
+> 💡 **Pro-Tip:** The best way to build a custom theme is to draw inspiration from the pre-built ones! You can copy the code directly from the `themes/` directory in the repository and tweak the colors or functions to your exact liking.
 
 ### Managing Your Themes
 

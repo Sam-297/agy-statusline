@@ -3,7 +3,7 @@ export default {
   segments: [
     (payload, utils) => {
       const strip = (s) => s.replace(/\x1B\[\d+(;\d+)*m/g, '');
-      const width = Math.min(100, payload?.terminal_width || 80);
+      const width = Math.min(100, (payload?.terminal_width || 80) - 2);
       
       const model = payload?.model?.display_name || "Unknown";
       const branch = payload?.git?.branch;
