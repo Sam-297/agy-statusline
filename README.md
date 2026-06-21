@@ -15,6 +15,13 @@
 
 Get the data you need, the moment you need it, without slowing down your workflow.
 
+## Prerequisites
+
+Before installing, ensure you have the following on your system:
+- **Node.js** (required to run the status line script)
+- **Git** (to clone the repository)
+- **Antigravity CLI (agy)** (the host application)
+
 ## Installation & Setup
 
 Welcome to the `agy-statusline` setup guide! Follow these simple steps to get your blazing-fast status line up and running.
