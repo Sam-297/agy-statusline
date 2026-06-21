@@ -1,4 +1,4 @@
-const MAX_PAYLOAD_SIZE = 64 * 1024; // 64KB limit
+const MAX_PAYLOAD_SIZE = 64 * 1024 * 1024; // 64MB limit
 
 export function parsePayload(jsonString) {
   if (typeof jsonString !== 'string') return null;
