@@ -112,6 +112,27 @@ export default {
 };
 ```
 
+#### Available Built-in Segments
+
+You can mix and match any of these pre-built strings in your `segments` array:
+
+- `"model"`: The active AI model
+- `"cwd_branch"`: Current working directory + Git branch
+- `"cwd"`: Just the current working directory
+- `"branch"`: Just the Git branch
+- `"tokens"`: Context window usage (Input/Output tokens + percentage)
+- `"quota_gemini"`, `"quota_anthropic"`, `"quota_openai"`: API quota and reset times
+- `"version"`: `agy` CLI version
+- `"extras"`: Active flags (e.g. read-only mode)
+- `"agent_state"`: Current agent status
+- `"plan_tier"`, `"product"`: Subscription information
+- `"email"`, `"email_masked"`: User account email
+- `"artifact_count"`: Number of active artifacts
+- `"sandbox"`: Displays a lock if the sandbox is enabled
+- `"exceeds_200k"`: Warning indicator for large contexts
+
+*(Advanced: You can also pass any deep JSON path from the raw `agy` payload as a string, e.g. `"context_window.context_window_size"`, and it will render it automatically!)*
+
 ### Managing Your Themes
 
 Whenever you manually edit your configuration file to create a layout you like, you can save it so you don't lose it when testing other themes. 
