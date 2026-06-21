@@ -3,8 +3,8 @@
 This directory contains pre-built themes for `agy-statusline`. 
 
 
-## Windows Compatibility
-**Important for Windows users:** Default Windows PowerShell (5.1) does not expand the `~` symbol for external commands like Node. In all the commands below, if you are on Windows, replace `~/.agy-plugins/agy-statusline/bin/agy-statusline` with `$HOME\.agy-plugins\agy-statusline\bin\agy-statusline`.
+## Windows Users
+*(Note: Replace `~/.agy-plugins/agy-statusline/bin/agy-statusline` with `$HOME\.agy-plugins\agy-statusline\bin\agy-statusline` in the commands below.)*
 
 ## Custom Themes
 You can manage your own custom themes using the built-in CLI:
