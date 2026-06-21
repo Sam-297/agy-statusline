@@ -2,6 +2,17 @@
 
 This directory contains pre-built themes for `agy-statusline`. 
 
+
+## Windows Compatibility
+*(Note: PowerShell users can use `~` just like Unix. Command Prompt users must use their full absolute path instead of `~`)*
+
+## Custom Themes
+You can manage your own custom themes using the built-in CLI:
+- **Save current config as a theme**: `node ~/.agy-plugins/agy-statusline/bin/agy-statusline --save-theme <name>`
+- **Load a theme**: `node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme <name>`
+- **List themes**: `node ~/.agy-plugins/agy-statusline/bin/agy-statusline --list-themes`
+- **Delete a theme**: `node ~/.agy-plugins/agy-statusline/bin/agy-statusline --delete-theme <name>`
+
 ## How to Apply a Theme
 
 To apply a theme, navigate to the `agy-statusline` plugin directory and run the `--load-theme` command. Once loaded, restart your `agy` session to see the new status line in action.
@@ -13,8 +24,7 @@ To apply a theme, navigate to the `agy-statusline` plugin directory and run the 
 To go back to the standard, minimalist default look:
 
 ```bash
-cd ~/.agy-plugins/agy-statusline
-node bin/agy-statusline --load-theme default
+node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme default
 ```
 
 ### Cyberpunk
@@ -22,8 +32,7 @@ node bin/agy-statusline --load-theme default
 ![Cyberpunk Theme](../docs/theme_cyberpunk.png)
 
 ```bash
-cd ~/.agy-plugins/agy-statusline
-node bin/agy-statusline --load-theme cyberpunk
+node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme cyberpunk
 ```
 
 ### Dashboard
@@ -31,8 +40,7 @@ node bin/agy-statusline --load-theme cyberpunk
 ![Dashboard Theme](../docs/theme_dashboard.png)
 
 ```bash
-cd ~/.agy-plugins/agy-statusline
-node bin/agy-statusline --load-theme dashboard
+node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme dashboard
 ```
 
 ### Elegant
@@ -40,8 +48,7 @@ node bin/agy-statusline --load-theme dashboard
 ![Elegant Theme](../docs/theme_elegant.png)
 
 ```bash
-cd ~/.agy-plugins/agy-statusline
-node bin/agy-statusline --load-theme elegant
+node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme elegant
 ```
 
 ### Progress Bar
@@ -49,8 +56,7 @@ node bin/agy-statusline --load-theme elegant
 ![Progress Bar Theme](../docs/theme_progress-bar.png)
 
 ```bash
-cd ~/.agy-plugins/agy-statusline
-node bin/agy-statusline --load-theme progress-bar
+node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme progress-bar
 ```
 
 ### Retro
@@ -58,6 +64,5 @@ node bin/agy-statusline --load-theme progress-bar
 ![Retro Theme](../docs/theme_retro.png)
 
 ```bash
-cd ~/.agy-plugins/agy-statusline
-node bin/agy-statusline --load-theme retro
+node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme retro
 ```

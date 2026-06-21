@@ -4,12 +4,8 @@
 
 `agy-statusline` provides a dynamic heads-up display directly in your terminal.
 
-### 🎨 Featured Themes
-
 ![Default Theme](docs/theme_default.png)
 ![Dashboard Theme](docs/theme_dashboard.png)
-
-[View the full Themes Gallery →](themes/README.md)
 
 ### Why `agy-statusline`?
 
@@ -43,9 +39,9 @@ agy plugin install $HOME\.agy-plugins\agy-statusline
 
 To activate the status line, navigate to the plugin directory and run the setup command to get your activation code:
 
+*(Note: PowerShell users can use `~` just like Unix. Command Prompt users must use their full absolute path instead of `~`)*
 ```bash
-cd ~/.agy-plugins/agy-statusline
-node bin/agy-statusline --setup
+node ~/.agy-plugins/agy-statusline/bin/agy-statusline --setup
 ```
 
 ### 3. Configuration (Optional)
@@ -65,7 +61,7 @@ New-Item -ItemType Directory -Force -Path $HOME\.config\agy-statusline
 ### Try a Pre-built Theme
 
 We offer several beautiful pre-built themes (Dashboard, Cyberpunk, Retro, etc.). 
-Check out the **[Themes Gallery](themes/README.md)** to see screenshots and installation instructions!
+Check out the **[Themes Gallery](themes/README.md)** to see screenshots, installation instructions, and how to manage your own **Custom Themes**!
 
 ### Write Your Own Custom Layout
 
@@ -84,11 +80,3 @@ export default {
 
 *(Note: Once installed and configured, simply restart your Antigravity CLI session to see your new status line in action!)*
 
-## Custom Themes
-
-You can manage custom themes using the built-in CLI. Run these commands from the `~/.agy-plugins/agy-statusline` directory:
-
-- **Save current config as a theme**: `node bin/agy-statusline --save-theme <name>`
-- **Load a theme**: `node bin/agy-statusline --load-theme <name>`
-- **List themes**: `node bin/agy-statusline --list-themes`
-- **Delete a theme**: `node bin/agy-statusline --delete-theme <name>`
