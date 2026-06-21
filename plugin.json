@@ -1,5 +1,5 @@
 {
   "name": "agy-statusline",
   "version": "1.0.0",
-  "description": "Zero-latency, zero-dependency status line for Antigravity"
+  "description": "A blazing-fast, zero-dependency status line for the Antigravity CLI."
 }
