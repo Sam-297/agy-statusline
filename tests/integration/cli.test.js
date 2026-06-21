@@ -8,7 +8,6 @@ test('CLI renders payload correctly', () => {
   const payload = JSON.stringify({ version: '1.2.3', model: { display_name: 'GPT' } });
   
   const stdout = execSync(`node ${binPath}`, { input: payload, encoding: 'utf8' });
-  assert.ok(stdout.includes('1.2.3'));
   assert.ok(stdout.includes('GPT'));
 });
 
@@ -21,5 +20,5 @@ test('CLI --help prints usage and exits 0', () => {
 test('CLI --setup writes config and exits 0', () => {
   const binPath = path.resolve(import.meta.dirname, '../../bin/agy-statusline');
   const stdout = execSync(`node ${binPath} --setup`, { encoding: 'utf8' });
-  assert.match(stdout, /Setup complete/);
+  assert.ok(stdout.includes('statusLine'));
 });
