@@ -3,7 +3,7 @@ export default {
   segments: [
     function sysVersion(payload, utils) {
       const v = payload?.version || "1.0";
-      return `\x1B[7;32m SYS.v${v} \x1B[0m`;
+      return `\x1B[42;30m SYS.v${v} \x1B[0m`;
     },
     function sysModel(payload, utils) {
       const model = payload?.model?.display_name?.toUpperCase() || "SYS";
