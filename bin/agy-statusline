@@ -76,7 +76,7 @@ process.stdin.on('end', async () => {
     output = output.replace(/(?<!\r)\n/g, '\r\n');
   }
   clearTimeout(timeout);
-  if (process.stdout.write(output)) {
+  if (process.stdout.write(output + '\n')) {
     process.exit(0);
   } else {
     process.stdout.once('drain', () => process.exit(0));

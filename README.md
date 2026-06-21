@@ -39,7 +39,31 @@ git clone https://github.com/Sam-297/agy-statusline $HOME\.agy-plugins\agy-statu
 agy plugin install $HOME\.agy-plugins\agy-statusline
 ```
 
-### 2. Configuration (Optional)
+### 2. Activate the Status Line
+
+Running `agy plugin install` does not automatically activate the status bar. You must manually configure Antigravity to use it.
+
+Open your `~/.gemini/antigravity-cli/settings.json` file and add or update the `statusLine` block:
+
+**macOS / Linux:**
+```json
+"statusLine": {
+  "type": "custom",
+  "command": "/absolute/path/to/home/.agy-plugins/agy-statusline/hooks/status-line.sh",
+  "enabled": true
+}
+```
+
+**Windows:**
+```json
+"statusLine": {
+  "type": "custom",
+  "command": "C:\\Absolute\\Path\\To\\home\\.agy-plugins\\agy-statusline\\hooks\\status-line.cmd",
+  "enabled": true
+}
+```
+
+### 3. Configuration (Optional)
 
 `agy-statusline` works perfectly out of the box, but it is also 100% programmable. You can customize the layout, colors, and segments by creating a personal configuration file.
 
