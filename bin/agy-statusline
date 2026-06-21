@@ -5,6 +5,8 @@ import os from 'node:os';
 import { parsePayload } from '../src/core/parser.js';
 import { loadConfig } from '../src/core/config.js';
 import { renderStatusLine } from '../src/core/renderer.js';
+import { runSetup } from '../src/core/setup.js';
+import { handleThemeCommand } from '../src/core/theme-manager.js';
 
 const args = process.argv.slice(2);
 
@@ -28,8 +30,17 @@ if (firstArg === '--version' || firstArg === '-v') {
   process.exit(0);
 }
 
+try {
+  if (handleThemeCommand(args)) {
+    process.exit(0);
+  }
+} catch (err) {
+  console.error('Error:', err.message);
+  process.exit(1);
+}
+
 if (firstArg === '--setup') {
-  console.log('Setup complete');
+  runSetup();
   process.exit(0);
 }
 
