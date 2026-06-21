@@ -13,7 +13,7 @@ export function runSetup() {
   }
 
   if (!fs.existsSync(configPath)) {
-    const defaultConfig = `export default {\n  separator: " • ",\n  segments: ["model", "cwd_branch", "tokens"]\n};\n`;
+    const defaultConfig = `export default {\n  separator: " • ",\n  segments: ["model", "cwd_branch", "tokens", "quota_gemini", "quota_anthropic", "version"]\n};\n`;
     atomicWriteSync(configPath, defaultConfig);
     console.error('Created default config at', configPath);
   } else {
