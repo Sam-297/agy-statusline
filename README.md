@@ -41,26 +41,11 @@ agy plugin install $HOME\.agy-plugins\agy-statusline
 
 ### 2. Activate the Status Line
 
-Running `agy plugin install` does not automatically activate the status bar. You must manually configure Antigravity to use it.
+To activate the status line, navigate to the plugin directory and run the setup command to get your activation code:
 
-Open your `~/.gemini/antigravity-cli/settings.json` file and add or update the `statusLine` block:
-
-**macOS / Linux:**
-```json
-"statusLine": {
-  "type": "custom",
-  "command": "/absolute/path/to/home/.agy-plugins/agy-statusline/hooks/status-line.sh",
-  "enabled": true
-}
-```
-
-**Windows:**
-```json
-"statusLine": {
-  "type": "custom",
-  "command": "C:\\Absolute\\Path\\To\\home\\.agy-plugins\\agy-statusline\\hooks\\status-line.cmd",
-  "enabled": true
-}
+```bash
+cd ~/.agy-plugins/agy-statusline
+node bin/agy-statusline --setup
 ```
 
 ### 3. Configuration (Optional)
@@ -98,3 +83,12 @@ export default {
 ```
 
 *(Note: Once installed and configured, simply restart your Antigravity CLI session to see your new status line in action!)*
+
+## Custom Themes
+
+You can manage custom themes using the built-in CLI. Run these commands from the `~/.agy-plugins/agy-statusline` directory:
+
+- **Save current config as a theme**: `node bin/agy-statusline --save-theme <name>`
+- **Load a theme**: `node bin/agy-statusline --load-theme <name>`
+- **List themes**: `node bin/agy-statusline --list-themes`
+- **Delete a theme**: `node bin/agy-statusline --delete-theme <name>`
