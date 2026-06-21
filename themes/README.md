@@ -96,7 +96,7 @@ To build your own theme, simply edit your active configuration file located at:
 - **Mac/Linux:** `~/.config/agy-statusline/config.mjs`
 - **Windows:** `$HOME\.config\agy-statusline\config.mjs`
 
-Because the configuration file is pure JavaScript, you can export whatever layout you like using the built-in segments, or even write your own custom functions! 
+Because the configuration file is pure JavaScript, you can export whatever layout you like using the built-in segments, or even write your own custom functions! You can use an included theme to tweak it or create an entirely new one.
 
 **Example Custom Layout:**
 ```javascript
@@ -116,10 +116,6 @@ export default {
 
 You can mix and match any of these pre-built strings in your `segments` array:
 `"model"`, `"cwd_branch"`, `"cwd"`, `"branch"`, `"tokens"`, `"quota_gemini"`, `"quota_anthropic"`, `"quota_openai"`, `"version"`, `"extras"`, `"agent_state"`, `"plan_tier"`, `"product"`, `"email"`, `"email_masked"`, `"artifact_count"`, `"sandbox"`, `"exceeds_200k"`.
-
-*(Advanced: You can also pass any deep JSON path from the raw `agy` payload as a string, e.g. `"context_window.context_window_size"`, and it will render it automatically!)*
-
-> 💡 **Pro-Tip:** The best way to build a custom theme is to draw inspiration from the pre-built ones! You can copy the code directly from the `themes/` directory in the repository and tweak the colors or functions to your exact liking.
 
 ### Managing Your Themes
 

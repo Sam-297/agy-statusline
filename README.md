@@ -49,39 +49,15 @@ node ~/.agy-plugins/agy-statusline/bin/agy-statusline --setup
 node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --setup
 ```
 
-### 3. Configuration (Optional)
+## Themes & Customization
 
-`agy-statusline` works perfectly out of the box, but it is also 100% programmable. You can customize the layout, colors, and segments by creating a personal configuration file.
+`agy-statusline` works perfectly out of the box, but it is also 100% programmable. You can customize the layout, colors, and segments by either writing a personal configuration file or using one of our pre-built themes (Dashboard, Cyberpunk, Retro, etc.).
 
-**macOS / Linux:**
-```bash
-mkdir -p ~/.config/agy-statusline
-```
+🎨 **[Check out the Themes Gallery & Customization Guide](themes/README.md)**
 
-**Windows (PowerShell):**
-```powershell
-mkdir -Force $HOME\.config\agy-statusline
-```
-
-### Try a Pre-built Theme
-
-We offer several beautiful pre-built themes (Dashboard, Cyberpunk, Retro, etc.). 
-Check out the **[Themes Gallery](themes/README.md)** to see screenshots, installation instructions, and how to manage your own **Custom Themes**!
-
-### Write Your Own Custom Layout
-
-If you prefer to write your own configuration from scratch, create `~/.config/agy-statusline/config.mjs` and export your layout. For example:
-
-```javascript
-export default {
-  separator: " • ",
-  segments: [
-    "model",
-    "cwd_branch",
-    "tokens"
-  ]
-};
-```
+There you will find:
+- Screenshots and one-line setup commands for all pre-built themes.
+- A full tutorial on how to program your own **Custom Themes** in JavaScript.
+- Instructions on using the built-in CLI to save and manage your configurations.
 
 *(Note: Once installed and configured, simply restart your Antigravity CLI session to see your new status line in action!)*
-

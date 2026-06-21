@@ -4,7 +4,7 @@ import url from 'node:url';
 import { getConfigDir, getThemesDir, atomicWriteSync } from './utils.js';
 
 function validateName(name) {
-  if (!/^[a-z0-9-]+$/.test(name)) throw new Error('Invalid name: use lowercase letters, numbers, hyphens');
+  if (!/^[a-z0-9-]+$/.test(name)) throw new Error(`Invalid name: '${name}'. Use lowercase letters, numbers, hyphens. Run with --list-themes to see available themes.`);
   return name;
 }
 
@@ -24,14 +24,14 @@ export function handleThemeCommand(args) {
     if (fs.existsSync(builtInThemesDir)) {
       const items = fs.readdirSync(builtInThemesDir).filter(i => i.endsWith('.js'));
       if (items.length > 0) items.forEach(i => console.error(` - ${i.replace('.js', '')}`));
-      else console.error(' - (None)');
+      else console.error(' <None>');
     } else {
-      console.error(' - (None)');
+      console.error(' <None>');
     }
     console.error('\nCustom Themes:');
     const customItems = fs.readdirSync(themesDir).filter(f => f.endsWith('.mjs'));
     if (customItems.length > 0) customItems.forEach(f => console.error(` - ${f.replace('.mjs', '')}`));
-    else console.error(' - (None)');
+    else console.error(' <None>');
     return true;
   }
 
@@ -48,12 +48,12 @@ export function handleThemeCommand(args) {
 
   const loadIdx = args.indexOf('--load-theme');
   if (loadIdx !== -1) {
-    if (!args[loadIdx + 1]) throw new Error('Missing theme name');
+    if (!args[loadIdx + 1]) throw new Error('Missing theme name. Run with --list-themes to see available themes.');
     const loadName = validateName(args[loadIdx + 1]);
     let sourceLoad = path.join(themesDir, `${loadName}.mjs`);
     if (!fs.existsSync(sourceLoad)) {
       sourceLoad = path.join(builtInThemesDir, `${loadName}.js`);
-      if (!fs.existsSync(sourceLoad)) throw new Error(`Theme not found: ${loadName}`);
+      if (!fs.existsSync(sourceLoad)) throw new Error(`Theme not found: '${loadName}'. Run with --list-themes to see available themes.`);
     }
     const content = fs.readFileSync(sourceLoad, 'utf8');
     atomicWriteSync(configPath, content);
