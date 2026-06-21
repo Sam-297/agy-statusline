@@ -23,7 +23,7 @@ export function handleThemeCommand(args) {
     console.error('Built-in Themes:');
     if (fs.existsSync(builtInThemesDir)) {
       const items = fs.readdirSync(builtInThemesDir);
-      items.filter(i => fs.statSync(path.join(builtInThemesDir, i)).isDirectory() && !i.startsWith('.')).forEach(i => console.error(` - ${i}`));
+      items.filter(i => i.endsWith('.js')).forEach(i => console.error(` - ${i.replace('.js', '')}`));
     }
     console.error('\nCustom Themes:');
     fs.readdirSync(themesDir).filter(f => f.endsWith('.mjs')).forEach(f => console.error(` - ${f.replace('.mjs', '')}`));
@@ -31,7 +31,8 @@ export function handleThemeCommand(args) {
   }
 
   const saveIdx = args.indexOf('--save-theme');
-  if (saveIdx !== -1 && args[saveIdx + 1]) {
+  if (saveIdx !== -1) {
+    if (!args[saveIdx + 1]) throw new Error('Missing theme name');
     const saveName = validateName(args[saveIdx + 1]);
     if (!fs.existsSync(configPath)) throw new Error('No active config to save.');
     const targetSave = path.join(themesDir, `${saveName}.mjs`);
@@ -41,11 +42,12 @@ export function handleThemeCommand(args) {
   }
 
   const loadIdx = args.indexOf('--load-theme');
-  if (loadIdx !== -1 && args[loadIdx + 1]) {
+  if (loadIdx !== -1) {
+    if (!args[loadIdx + 1]) throw new Error('Missing theme name');
     const loadName = validateName(args[loadIdx + 1]);
     let sourceLoad = path.join(themesDir, `${loadName}.mjs`);
     if (!fs.existsSync(sourceLoad)) {
-      sourceLoad = path.join(builtInThemesDir, loadName, 'config.mjs');
+      sourceLoad = path.join(builtInThemesDir, `${loadName}.js`);
       if (!fs.existsSync(sourceLoad)) throw new Error(`Theme not found: ${loadName}`);
     }
     const content = fs.readFileSync(sourceLoad, 'utf8');
@@ -55,7 +57,8 @@ export function handleThemeCommand(args) {
   }
 
   const delIdx = args.indexOf('--delete-theme');
-  if (delIdx !== -1 && args[delIdx + 1]) {
+  if (delIdx !== -1) {
+    if (!args[delIdx + 1]) throw new Error('Missing theme name');
     const delName = validateName(args[delIdx + 1]);
     const targetDel = path.join(themesDir, `${delName}.mjs`);
     if (fs.existsSync(targetDel)) {
