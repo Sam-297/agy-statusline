@@ -30,7 +30,7 @@ agy plugin install ~/.agy-plugins/agy-statusline
 
 **Windows (PowerShell):**
 ```powershell
-New-Item -ItemType Directory -Force -Path $HOME\.agy-plugins
+mkdir -Force $HOME\.agy-plugins
 git clone https://github.com/Sam-297/agy-statusline $HOME\.agy-plugins\agy-statusline
 agy plugin install $HOME\.agy-plugins\agy-statusline
 ```
@@ -39,9 +39,14 @@ agy plugin install $HOME\.agy-plugins\agy-statusline
 
 To activate the status line, navigate to the plugin directory and run the setup command to get your activation code:
 
-*(Note: PowerShell users can use `~` just like Unix. Command Prompt users must use their full absolute path instead of `~`)*
+**macOS / Linux:**
 ```bash
 node ~/.agy-plugins/agy-statusline/bin/agy-statusline --setup
+```
+
+**Windows (PowerShell):**
+```powershell
+node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --setup
 ```
 
 ### 3. Configuration (Optional)
@@ -55,7 +60,7 @@ mkdir -p ~/.config/agy-statusline
 
 **Windows (PowerShell):**
 ```powershell
-New-Item -ItemType Directory -Force -Path $HOME\.config\agy-statusline
+mkdir -Force $HOME\.config\agy-statusline
 ```
 
 ### Try a Pre-built Theme
