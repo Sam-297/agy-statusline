@@ -90,6 +90,30 @@ node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --load-theme retro
 
 The plugin comes with a fully-featured built-in CLI to manage your own personalized themes. 
 
+### How to Create a Custom Theme
+
+To build your own theme, simply edit your active configuration file located at:
+- **Mac/Linux:** `~/.config/agy-statusline/config.mjs`
+- **Windows:** `$HOME\.config\agy-statusline\config.mjs`
+
+Because the configuration file is pure JavaScript, you can export whatever layout you like using the built-in segments, or even write your own custom functions! 
+
+**Example Custom Layout:**
+```javascript
+export default {
+  separator: " | ",
+  segments: [
+    "cwd_branch",
+    "model",
+    "tokens",
+    // You can even write inline custom functions!
+    (payload, utils) => payload.sandbox?.enabled ? '🔒 SECURE' : ''
+  ]
+};
+```
+
+### Managing Your Themes
+
 Whenever you manually edit your configuration file to create a layout you like, you can save it so you don't lose it when testing other themes. 
 
 **1. Save your active config as a theme:**
