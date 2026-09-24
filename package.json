@@ -1,25 +1,45 @@
 {
-  "name": "agy-statusline",
-  "version": "1.0.0",
+  "name": "@sam-297/agy-statusline",
+  "version": "2.0.0",
   "description": "A fast, programmable status line for the Antigravity CLI (agy)",
   "type": "module",
   "bin": {
     "agy-statusline": "bin/agy-statusline"
   },
+  "files": [
+    "bin/",
+    "src/",
+    "themes/*.js",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=20"
   },
   "repository": "github:Sam-297/agy-statusline",
+  "keywords": [
+    "antigravity",
+    "agy",
+    "statusline",
+    "status-line",
+    "cli"
+  ],
   "scripts": {
     "test": "node --test",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "screenshots": "node scripts/screenshots.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "author": "Sam",
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "ansi-to-html": "^0.7.2",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
-    "globals": "^17.12.0"
+    "globals": "^17.12.0",
+    "puppeteer": "^25.12.0"
   }
 }

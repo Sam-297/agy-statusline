@@ -13,15 +13,15 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         node-version: [20.x, 22.x]
-
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Run tests
-      run: npm test
+    - run: npm ci
+      env:
+        PUPPETEER_SKIP_DOWNLOAD: 'true'
+    - run: npm test
 
   lint:
     runs-on: ubuntu-latest
@@ -31,4 +31,28 @@ jobs:
       with:
         node-version: 22.x
     - run: npm ci
+      env:
+        PUPPETEER_SKIP_DOWNLOAD: 'true'
     - run: npm run lint
+
+  # agy on Windows runs the bare command through PATH (docs/agy-contract.md). Do the same.
+  windows-shim:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+    - run: npm install -g .
+    - name: Render through the npm shim
+      shell: cmd
+      run: |
+        agy-statusline < tests\fixtures\payloads\windows-idle.json > out.txt
+        if errorlevel 1 exit /b 1
+        type out.txt
+        findstr /C:"Gemini 3.1 Pro" out.txt || exit /b 1
+    - name: install registers the bare command
+      shell: cmd
+      run: |
+        agy-statusline install
+        findstr /C:"\"command\": \"agy-statusline\"" "%USERPROFILE%\.gemini\antigravity-cli\settings.json" || exit /b 1
