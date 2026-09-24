@@ -54,3 +54,36 @@ Audited against the real agy behavior in [agy-contract.md](agy-contract.md) (agy
 4. **Latency target:** Linux ≤ 45 ms, Windows ≤ 120 ms per render.
 5. **Node floor raised to 20.** 18 is end-of-life, and the tests already use `import.meta.dirname` (20.11+).
 6. **Execution:** the user chose plan-only for now. Plan: `docs/superpowers/plans/2026-09-24-foundation-rebuild.md`.
+
+## Resolution (2.0.0, branch `audit-and-fix`)
+
+Each finding was verified fixed in real agy 1.2.10 on WSL and native Windows (Task 13 of the rebuild plan), except where noted.
+
+| # | Fixed by | How |
+|---|---|---|
+| 1 | 5a6d0f5, f048037, 0ef2d1b | `install` registers `node <plain path>` or the bare npm shim, never a quoted path. Verified from `C:\Users\samha\space test` |
+| 2 | 0352363 | `.ps1`/`.sh`/`.cmd` hooks deleted |
+| 3 | 5a6d0f5, 45880de | `install` writes `settings.json` itself (`type: "command"`); `uninstall` restores the exact previous value |
+| 4 | 0352363 | `hooks.json`, `plugin.json`, `hooks/` removed; README uses npm |
+| 5 | daacd03, 0352363 | 300 ms per-segment timeout (`[name: timeout]` inline); 3 s hard deadline |
+| 6 | 0352363 | Render mode always exits 0; errors render inline. 0 `Statusline Error` in live tests |
+| 7 | 0352363 | Own 3 s deadline, well below agy's ~4–5 s kill |
+| 8 | 1b15f8c, abc4cfa | `data.getBranch` reads `.git/HEAD` for every theme |
+| 9 | 1180a9f, abc4cfa | Dead fields removed from segments and themes |
+| 10 | abc4cfa | Themes omit missing data; tests reject placeholders |
+| 11 | daacd03, abc4cfa | Multi-line lines are truncated, not dropped; regression test at 80 columns |
+| 12 | 1180a9f, abc4cfa | PII only via opt-in segments; tests reject it in every theme |
+| 13 | 1b15f8c | Quota is "used %" everywhere |
+| 14 | 1b15f8c | Context uses agy's `used_percentage` |
+| 15 | 62cb822, f048037 | `displayWidth`/`truncate` count emoji, CJK, ZWJ, flags and skin tones |
+| 16 | 6ebfd3a | Config mistakes become a visible `⚠` segment |
+| 17 | 6ebfd3a, 1652fb2 | Themes selected by name from the package; 1x flags kept as aliases |
+| 18 | abc4cfa, daacd03 | Shared `utils` helpers; the renderer applies `NO_COLOR` globally |
+| 19 | 1180a9f | `session_id_short` shows the real short id |
+| 20 | 0352363, 6e9bec3, f048037 | Linux ~40–45 ms, Windows ~118 ms (see agy-contract.md → Performance) |
+| 21 | 2d25089, 0352363 | `Atomics.wait` instead of a busy loop; 1 MB payload cap |
+| 22 | 2d25089, 540bcff | Lint fixed and in CI; dev deps declared; hermetic screenshot script |
+| 23 | all feature commits | 31 → 172 tests: fixtures × themes × widths, CLI, install, bundle equivalence |
+| 24 | 2d25089, 540bcff | Stale files moved to `~/agy-statusline-old-local-files/` or deleted |
+
+Also found and fixed during the rebuild: the CLI ignored `XDG_CONFIG_HOME` (3fa9532); `theme` overwrote earlier config backups (1445850); install/uninstall mistook other tools named `agy-statusline` for itself (45880de); and the install path could be interpreted by `sh` (0ef2d1b).
