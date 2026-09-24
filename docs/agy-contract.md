@@ -28,7 +28,7 @@ If you change behavior based on this doc, re-verify it first: agy updates itself
 | stdout | a pipe (`isTTY` false) | a pipe |
 | env | inherited. agy does **not** set `NO_COLOR`, `COLUMNS` or `FORCE_COLOR` | inherited |
 
-Windows with an `sh` on PATH (Git Bash etc.) likely goes through `sh -c` like Linux. The competitor agy-hud even installs an `sh.cmd` shim for this. This was not verified here. **Design rule:** the command we register must be a single bare token or an absolute path without spaces or quotes. That form works under every Windows variant.
+Windows with an `sh` on PATH (Git Bash etc.) likely goes through `sh -c` like Linux. The competitor agy-hud even installs an `sh.cmd` shim for this. This was not verified here. **Design rule:** the command we register must be `node <absolute path without spaces>` or a single bare token resolved on PATH (our npm shim), never quoted. Both forms work under every Windows variant. See `chooseCommand` in `src/cli/install.js`.
 
 ## Timing & failure
 
@@ -76,14 +76,19 @@ Not observed but present as types in the agy binary (probably omitted when empty
 
 Fields the current code expects that **don't exist**: `git.branch`, `git.cwd`, `artifact_count`, `tool_confirmation_pending` (the last two may have been dropped since 1.0.10).
 
-## Performance baseline (current code)
+## Performance
+
+Medians of interleaved runs, 2026-09-24. On Windows, every command is launched through `cmd /c`, as in agy.
 
 | | Linux (WSL2) | Windows |
 |---|---|---|
-| bare `node -e 0` | ~27 ms | ~102 ms (includes the `cmd /c` launch) |
-| full render | ~74 ms (via `status-line.sh`) | ~133 ms direct, ~136 ms via `status-line.cmd` |
+| bare `node -e 0` | ~23–27 ms | ~86 ms |
+| v1 render | ~74 ms (via `status-line.sh`) | ~133 ms direct, ~136 ms via `status-line.cmd` (never worked in agy; see above) |
+| v2 render, sources (git checkout / `npm link`) | ~45 ms | ~144 ms |
+| **v2 render, published package** (one-file bundle) | **~40–45 ms** | **~118 ms** (registered as `node <path>`) |
+| v2 via npm's `agy-statusline.cmd` shim | n/a | ~138 ms (the fallback when the install path has spaces) |
 
-Node startup dominates on Windows. Our code adds ~30–45 ms, and that's the part we control.
+Where the time goes on Windows: each ESM file costs ~3.5 ms to load, which is why the render path ships as one bundle (`scripts/build.mjs`). npm's `.cmd` shim adds ~20 ms, which is why `install` registers `node <path>` directly whenever the path has no spaces. `Intl.Segmenter` (~8–10 ms) and `Intl.DateTimeFormat` (~4 ms) construction are avoided on purpose.
 
 ## Distribution notes
 
