@@ -1,0 +1,60 @@
+{
+  "cwd": "C:\\Users\\user",
+  "session_id": "00000000-0000-4000-8000-000000000000",
+  "conversation_id": "00000000-0000-4000-8000-000000000000",
+  "transcript_path": "C:\\Users\\user\\.gemini\\antigravity\\brain\\00000000-0000-4000-8000-000000000000\\.system_generated\\logs\\transcript.jsonl",
+  "model": {
+    "id": "Gemini 3.1 Pro (High)",
+    "display_name": "Gemini 3.1 Pro (High)",
+    "effort": "high"
+  },
+  "workspace": {
+    "current_dir": "C:\\Users\\user",
+    "project_dir": "C:\\Users\\user"
+  },
+  "version": "1.2.10",
+  "context_window": {
+    "total_input_tokens": 17074,
+    "total_output_tokens": 153,
+    "context_window_size": 1048576,
+    "used_percentage": 1.6283035278320312,
+    "remaining_percentage": 98.37169647216797,
+    "current_usage": {
+      "input_tokens": 12002,
+      "output_tokens": 153,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "product": "antigravity",
+  "quota": {
+    "3p-5h": {
+      "remaining_fraction": 0.9750264,
+      "reset_time": "2026-09-24T15:18:56Z",
+      "reset_in_seconds": 17669
+    },
+    "3p-weekly": {
+      "remaining_fraction": 0.9916755,
+      "reset_time": "2026-10-01T10:18:56Z",
+      "reset_in_seconds": 604469
+    },
+    "gemini-5h": {
+      "remaining_fraction": 1,
+      "reset_time": "2026-09-24T15:23:22Z",
+      "reset_in_seconds": 17935
+    },
+    "gemini-weekly": {
+      "remaining_fraction": 1,
+      "reset_time": "2026-10-01T10:23:22Z",
+      "reset_in_seconds": 604735
+    }
+  },
+  "agent_state": "idle",
+  "sandbox": {
+    "enabled": false
+  },
+  "plan_tier": "Google AI Pro",
+  "email": "user@example.com",
+  "terminal_width": 90
+}
