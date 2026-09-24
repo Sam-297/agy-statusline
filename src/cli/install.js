@@ -10,9 +10,24 @@ export const BIN_NAME = 'agy-statusline';
 
 export const agySettingsPath = (home) =>
   path.join(home, '.gemini', 'antigravity-cli', 'settings.json');
+// Remembers the statusLine that was there before us and the exact command we registered,
+// so we never mistake another tool (e.g. a different package also named agy-statusline) for us.
 const statePath = (configDir) => path.join(configDir, 'previous-statusline.json');
-const isOurs = (statusLine) =>
-  typeof statusLine?.command === 'string' && statusLine.command.includes(BIN_NAME);
+const V1_HOOK = /agy-statusline[\\/]+hooks[\\/]+status-line/;
+
+function readState(configDir) {
+  try {
+    return JSON.parse(fs.readFileSync(statePath(configDir), 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function isOurs(statusLine, state) {
+  const command = statusLine?.command;
+  if (typeof command !== 'string') return false;
+  return command === state?.registered || V1_HOOK.test(command);
+}
 
 function realpath(p) {
   try {
@@ -88,12 +103,14 @@ export function install({ home, env, platform, configDir, scriptPath, nodePath, 
   }
 
   fs.mkdirSync(configDir, { recursive: true });
-  if (!isOurs(settings.statusLine) && !fs.existsSync(statePath(configDir))) {
-    atomicWriteSync(
-      statePath(configDir),
-      JSON.stringify({ statusLine: settings.statusLine ?? null }, null, 2) + '\n'
-    );
-  }
+  const state = readState(configDir);
+  const previous = isOurs(settings.statusLine, state)
+    ? (state?.statusLine ?? null)
+    : (settings.statusLine ?? null);
+  atomicWriteSync(
+    statePath(configDir),
+    JSON.stringify({ statusLine: previous, registered: choice.command }, null, 2) + '\n'
+  );
   settings.statusLine = statusLine;
   atomicWriteSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
 
@@ -117,14 +134,12 @@ export function uninstall({ home, configDir, out, err }) {
     err(`Can't read ${settingsPath}; nothing changed.`);
     return 1;
   }
-  if (!isOurs(settings.statusLine)) {
+  const state = readState(configDir);
+  if (!isOurs(settings.statusLine, state)) {
     out('agy-statusline is not the active status line; nothing changed.');
     return 0;
   }
-  let previous = null;
-  try {
-    previous = JSON.parse(fs.readFileSync(statePath(configDir), 'utf8')).statusLine ?? null;
-  } catch {}
+  const previous = state?.statusLine ?? null;
   if (previous) settings.statusLine = previous;
   else delete settings.statusLine;
   atomicWriteSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');

@@ -164,3 +164,45 @@ test('uninstall leaves a foreign statusLine alone', () => {
   assert.strictEqual(uninstall(ctx), 0);
   assert.deepStrictEqual(readSettings(ctx).statusLine, foreign);
 });
+
+test('a foreign tool that happens to be named agy-statusline is not mistaken for ours', () => {
+  const { ctx: make } = sandbox();
+  const ctx = make();
+  fs.mkdirSync(path.dirname(agySettingsPath(ctx.home)), { recursive: true });
+  const foreign = { type: 'command', command: 'agy-statusline --their-flags', enabled: true };
+  fs.writeFileSync(agySettingsPath(ctx.home), JSON.stringify({ statusLine: foreign }));
+
+  assert.strictEqual(uninstall(ctx), 0); // not ours: untouched
+  assert.deepStrictEqual(readSettings(ctx).statusLine, foreign);
+
+  assert.strictEqual(install(ctx), 0); // ours now; the foreign one is remembered…
+  assert.strictEqual(uninstall(ctx), 0); // …and restored
+  assert.deepStrictEqual(readSettings(ctx).statusLine, foreign);
+});
+
+test('reinstall after the command changed (e.g. new node path) still restores the original', () => {
+  const { ctx: make } = sandbox();
+  const ctx = make();
+  fs.mkdirSync(path.dirname(agySettingsPath(ctx.home)), { recursive: true });
+  const original = { type: 'command', command: 'other-tool', enabled: true };
+  fs.writeFileSync(agySettingsPath(ctx.home), JSON.stringify({ statusLine: original }));
+  assert.strictEqual(install(ctx), 0);
+  assert.strictEqual(install({ ...ctx, nodePath: '/opt/node-22/bin/node' }), 0);
+  assert.strictEqual(uninstall(ctx), 0);
+  assert.deepStrictEqual(readSettings(ctx).statusLine, original);
+});
+
+test('the v1 hook command counts as ours (upgrade path), so it is not "restored" later', () => {
+  const { ctx: make } = sandbox();
+  const ctx = make();
+  fs.mkdirSync(path.dirname(agySettingsPath(ctx.home)), { recursive: true });
+  const v1 = {
+    type: 'command',
+    command: '/home/u/.gemini/config/plugins/agy-statusline/hooks/status-line.sh',
+    enabled: true,
+  };
+  fs.writeFileSync(agySettingsPath(ctx.home), JSON.stringify({ statusLine: v1 }));
+  assert.strictEqual(install(ctx), 0);
+  assert.strictEqual(uninstall(ctx), 0);
+  assert.strictEqual(readSettings(ctx).statusLine, undefined);
+});

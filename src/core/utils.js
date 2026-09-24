@@ -10,10 +10,6 @@ export function getConfigDir() {
   return path.join(home, '.config', 'agy-statusline');
 }
 
-export function getThemesDir() {
-  return path.join(getConfigDir(), 'themes');
-}
-
 function syncSleep(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
