@@ -46,11 +46,11 @@ Audited against the real agy behavior in [agy-contract.md](agy-contract.md) (agy
 - Zero runtime dependencies, Node ESM, `node:test`, and the CI matrix across 3 OSes.
 - Multi-line layouts: agy renders them fine.
 
-## Decisions needed (Phase 3)
+## Decisions (Phase 3, 2026-09-24)
 
-Recommendations are given below; the choices are recorded after the user answers.
-
-1. **Distribution:** an npm package (`npm i -g agy-statusline`, then `agy-statusline install`), which registers the bare command `agy-statusline`. It's the only form tested to work on every Windows variant, it updates with `npm update -g`, and `uninstall` restores settings. Drop the git-clone + `agy plugin install` flow.
-2. **Config & themes:** `~/.config/agy-statusline/config.mjs` with `export default { theme: 'dashboard' }` plus optional overrides. Themes live in the package, and functions still work for custom segments. Replace `--save/--load/--delete-theme` with `agy-statusline theme <name>` (which writes the theme name into the config) and `agy-statusline preview` (renders all themes). An empty config means the default theme.
-3. **Theme lineup:** keep all 6, rebuilt on shared helpers, with no fake data, responsive and PII-free. Retro and cyberpunk get fixed or cut.
-4. **Latency target:** Linux ≤ 45 ms, Windows ≤ 120 ms per render (that is, within ~20 ms of bare Node).
+1. **Distribution: npm, and the same installer works from a git clone.** The user said "idk", so Claude chose this. The npm name `agy-statusline` is **taken** (by pkradioman, May 2026), so the package is **`@sam-297/agy-statusline`** and the command stays `agy-statusline`. `agy-statusline install` registers the bare command when our npm shim is on PATH (the only form that works on every Windows variant). Otherwise it registers `"<node>" "<script>"` on Linux/macOS, or `node <script>` on Windows if the path has no spaces. `agy-statusline uninstall` restores the previous `statusLine`. The `agy plugin install` flow, `hooks/`, `hooks.json` and `plugin.json` are dropped. Publishing to npm needs the user's npm login and is done last, with their go-ahead.
+2. **Config & themes: theme by name** (user's choice). `config.mjs` is `export default { theme: 'dashboard' }` plus optional overrides. Themes live in the package. Custom function segments still work. `agy-statusline theme <name>`, `themes` and `preview` replace save/load/delete-theme (`--setup`, `--load-theme` and `--list-themes` stay as aliases).
+3. **Theme lineup: keep all 6, fixed** (user's choice). They get shared helpers, real data only, responsive layouts, and no PII by default.
+4. **Latency target:** Linux ≤ 45 ms, Windows ≤ 120 ms per render.
+5. **Node floor raised to 20.** 18 is end-of-life, and the tests already use `import.meta.dirname` (20.11+).
+6. **Execution:** the user chose plan-only for now. Plan: `docs/superpowers/plans/2026-09-24-foundation-rebuild.md`.
