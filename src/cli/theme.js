@@ -7,6 +7,13 @@ import { atomicWriteSync } from '../core/utils.js';
 
 const THEME_LINE = /(\btheme\s*:\s*)(['"])[^'"\n]*\2/;
 
+// config.mjs.bak, then config.mjs.1.bak, … so an earlier backup is never overwritten.
+function freeBackupPath(configPath) {
+  let candidate = `${configPath}.bak`;
+  for (let i = 1; fs.existsSync(candidate); i++) candidate = `${configPath}.${i}.bak`;
+  return candidate;
+}
+
 export function setTheme(name, { configDir, out, err }) {
   const themes = listThemes();
   if (!name || !themes.includes(name)) {
@@ -20,8 +27,9 @@ export function setTheme(name, { configDir, out, err }) {
     source = source.replace(THEME_LINE, `$1$2${name}$2`);
   } else {
     if (source !== null) {
-      fs.copyFileSync(configPath, `${configPath}.bak`);
-      out(`Backed up your previous config to ${configPath}.bak`);
+      const backup = freeBackupPath(configPath);
+      fs.copyFileSync(configPath, backup);
+      out(`Backed up your previous config to ${backup}`);
     }
     source = defaultConfigSource(name);
   }

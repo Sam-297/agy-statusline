@@ -75,3 +75,19 @@ test('preview renders every theme with the sample payload', async () => {
   assert.match(text, /Gemini 3\.1 Pro/);
   assert.ok(!text.includes('user@example.com'));
 });
+
+test('setTheme never overwrites an earlier backup', () => {
+  const ctx = io();
+  const file = path.join(ctx.configDir, 'config.mjs');
+  fs.writeFileSync(file, 'export default { segments: [1] };\n');
+  setTheme('retro', ctx);
+  fs.writeFileSync(file, 'export default { segments: [2] };\n');
+  setTheme('retro', ctx);
+  const backups = fs.readdirSync(ctx.configDir).filter((f) => f.includes('.bak'));
+  assert.strictEqual(backups.length, 2, backups.join(', '));
+  const contents = backups.map((f) => fs.readFileSync(path.join(ctx.configDir, f), 'utf8')).sort();
+  assert.deepStrictEqual(contents, [
+    'export default { segments: [1] };\n',
+    'export default { segments: [2] };\n',
+  ]);
+});
