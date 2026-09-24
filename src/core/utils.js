@@ -15,8 +15,7 @@ export function getThemesDir() {
 }
 
 function syncSleep(ms) {
-  const start = Date.now();
-  while (Date.now() - start < ms) {}
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
 export function atomicWriteSync(filePath, content) {

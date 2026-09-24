@@ -1,29 +1,22 @@
-import js from "@eslint/js";
-import eslintConfigPrettier from "eslint-config-prettier";
+import js from '@eslint/js';
+import globals from 'globals';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default [
+  { ignores: ['node_modules/', 'coverage/', 'scripts/captures/'] },
   js.configs.recommended,
   eslintConfigPrettier,
   {
     languageOptions: {
       ecmaVersion: 2024,
-      sourceType: "module",
-      globals: {
-        node: true,
-        console: true,
-        process: true,
-        describe: "readonly",
-        it: "readonly",
-        before: "readonly",
-        after: "readonly",
-        beforeEach: "readonly",
-        afterEach: "readonly",
-        mock: "readonly"
-      }
+      sourceType: 'module',
+      globals: { ...globals.node },
     },
     rules: {
-      "no-unused-vars": "warn",
-      "no-undef": "error"
-    }
-  }
+      'no-unused-vars': ['warn', { args: 'none', caughtErrors: 'none' }],
+      // Matching ANSI escape sequences is this project's job.
+      'no-control-regex': 'off',
+      'no-empty': ['error', { allowEmptyCatch: true }],
+    },
+  },
 ];
