@@ -66,10 +66,17 @@ function isOurWindowsShim(found, scriptPath) {
   );
 }
 
+// agy runs the command with `sh -c` on Linux/macOS. Single quotes stop sh from expanding
+// $(...), backticks and variables that could be in an install path.
+const shQuote = (s) => `'${s.replaceAll("'", `'\\''`)}'`;
+// Windows agy splits on whitespace with no quoting, and may run through sh or cmd, so only
+// plain path characters may appear in a command we register there.
+const PLAIN_WINDOWS_PATH = /^[A-Za-z0-9_.:\\/@~+-]+$/;
+
 export function chooseCommand({ env, platform, scriptPath, nodePath }) {
-  if (platform !== 'win32') return { command: `"${nodePath}" "${scriptPath}"` };
-  // Fastest: node directly (npm's .cmd shim adds ~20 ms per render). Only possible without spaces.
-  if (!/\s/.test(scriptPath)) return { command: `node ${scriptPath}` };
+  if (platform !== 'win32') return { command: `${shQuote(nodePath)} ${shQuote(scriptPath)}` };
+  // Fastest: node directly (npm's .cmd shim adds ~20 ms per render).
+  if (PLAIN_WINDOWS_PATH.test(scriptPath)) return { command: `node ${scriptPath}` };
   const found = findOnPath(BIN_NAME, env, platform);
   if (found && isOurWindowsShim(found, scriptPath)) return { command: BIN_NAME };
   return {

@@ -3,6 +3,7 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import {
   chooseCommand,
   install,
@@ -33,7 +34,7 @@ function sandbox() {
 
 const readSettings = (ctx) => JSON.parse(fs.readFileSync(agySettingsPath(ctx.home), 'utf8'));
 
-test('linux/mac: absolute quoted node + script (sh -c handles quotes)', () => {
+test('linux/mac: single-quoted node + script (sh -c runs it; spaces are fine)', () => {
   assert.deepStrictEqual(
     chooseCommand({
       env: { PATH: '' },
@@ -41,8 +42,39 @@ test('linux/mac: absolute quoted node + script (sh -c handles quotes)', () => {
       scriptPath: '/a b/bin/agy-statusline',
       nodePath: '/usr/bin/node',
     }),
-    { command: '"/usr/bin/node" "/a b/bin/agy-statusline"' }
+    { command: "'/usr/bin/node' '/a b/bin/agy-statusline'" }
   );
+});
+
+test('linux/mac: shell metacharacters in the path are never interpreted by sh', () => {
+  const scriptPath = "/tmp/$(touch pwned)/it's `x`/bin/agy-statusline";
+  const { command } = chooseCommand({
+    env: { PATH: '' },
+    platform: 'linux',
+    scriptPath,
+    nodePath: '/usr/bin/node',
+  });
+  assert.strictEqual(
+    command,
+    `'/usr/bin/node' '/tmp/$(touch pwned)/it'\\''s \`x\`/bin/agy-statusline'`
+  );
+  if (process.platform !== 'win32') {
+    // Ask the real sh what it would pass as arguments.
+    const argv = execFileSync('sh', ['-c', `printf '%s\\n' ${command.replace(/^'[^']*' /, '')}`], {
+      encoding: 'utf8',
+    });
+    assert.strictEqual(argv, `${scriptPath}\n`);
+  }
+});
+
+test('windows: shell metacharacters in the path → not registered as node <path>', () => {
+  const res = chooseCommand({
+    env: { Path: '' },
+    platform: 'win32',
+    scriptPath: 'C:\\evil&calc\\bin\\agy-statusline',
+    nodePath: 'C:\\node.exe',
+  });
+  assert.ok(res.error, JSON.stringify(res));
 });
 
 function fakeNpmPrefix(dirName) {
@@ -125,7 +157,7 @@ test('install writes statusLine, keeps other settings, saves the previous status
   assert.strictEqual(s.model, 'x');
   assert.deepStrictEqual(s.statusLine, {
     type: 'command',
-    command: '"/usr/bin/node" "/opt/agy-statusline/bin/agy-statusline"',
+    command: "'/usr/bin/node' '/opt/agy-statusline/bin/agy-statusline'",
     enabled: true,
   });
   assert.ok(fs.existsSync(path.join(ctx.configDir, 'config.mjs')));
