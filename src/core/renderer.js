@@ -1,132 +1,118 @@
-import { renderModel } from '../features/session/model.js';
-import { renderVersion } from '../features/session/version.js';
-import { renderExtras } from '../features/session/extras.js';
-import { renderCwdBranch, renderCwd, renderBranch } from '../features/git/cwd-branch.js';
-import { renderTokens, formatNumber } from '../features/tokens/tokens.js';
-import { renderQuota } from '../features/quota/quota.js';
-
 import colors from './colors.js';
+import * as data from './data.js';
+import * as format from './format.js';
+import { resolveSegment } from './segments.js';
+import { displayWidth, stripAnsi, truncate } from './width.js';
 
-const SEGMENT_MAP = {
-  model: (payload, utils) => renderModel(payload, utils),
-  cwd_branch: (payload, utils) => renderCwdBranch(payload, utils),
-  cwd: (payload, utils) => renderCwd(payload, utils),
-  branch: (payload, utils) => renderBranch(payload, utils),
-  tokens: (payload, utils) => renderTokens(payload, utils),
-  quota_gemini: (payload, utils) => renderQuota(payload, 'gemini', utils),
-  quota_anthropic: (payload, utils) => renderQuota(payload, 'anthropic', utils),
-  quota_openai: (payload, utils) => renderQuota(payload, 'openai', utils),
-  version: (payload, utils) => renderVersion(payload, utils),
-  extras: (payload, utils) => renderExtras(payload, utils),
-  
-  // Optional / Extra Segments
-  email_masked: (payload) => {
-    if (typeof payload?.email !== 'string') return '';
-    const parts = payload.email.split('@');
-    if (parts.length < 2) return colors.dim(payload.email);
-    return colors.dim(parts[0][0] + '***@' + parts[1]);
-  },
-  email: (payload) => typeof payload?.email === 'string' ? colors.dim(payload.email) : '',
-  session_id_short: (payload) => typeof payload?.session_id === 'string' ? colors.dim(`ID:s***`) : '',
-  session_id: (payload) => typeof payload?.session_id === 'string' ? colors.dim(`ID:s***`) : '',
-  agent_state: (payload) => payload?.agent_state ? colors.purple(payload.agent_state) : '',
-  plan_tier: (payload) => payload?.plan_tier ? colors.yellow(payload.plan_tier) : '',
-  product: (payload) => payload?.product ? colors.cyan(payload.product) : '',
-  artifact_count: (payload) => payload?.artifact_count ? `📦${payload.artifact_count}` : '',
-  output_tokens: (payload) => payload?.context_window?.total_output_tokens ? colors.dim(`Out:${formatNumber(payload.context_window.total_output_tokens)}`) : '',
-  sandbox: (payload) => payload?.sandbox?.enabled ? '🔒' : '',
-  exceeds_200k: (payload) => payload?.exceeds_200k_tokens ? colors.red('⚠>200k') : ''
-};
+export const SEGMENT_TIMEOUT_MS = 300;
+const CUSTOM_PRIORITY = 5;
+const WARNING_PRIORITY = 7;
+const RESET = '\x1b[0m';
+const TIMEOUT = Symbol('timeout');
 
-function getPayloadPath(obj, path) {
-  return path.split('.').reduce((acc, part) => {
-    if (part === '__proto__' || part === 'constructor' || part === 'prototype') return undefined;
-    return acc == null ? undefined : acc[part];
-  }, obj);
+export function maxWidthFor(payload) {
+  const w = payload?.terminal_width;
+  if (w === 0) return Infinity;
+  // 2-column margin: avoids auto-wrap on the last column.
+  return (typeof w === 'number' && w > 0 ? w : 80) - 2;
 }
 
-const HIDE_PRIORITY = [
-  'version',
-  'quota_openai',
-  'quota_anthropic',
-  'quota_gemini',
-  'cwd',
-  'branch',
-  'cwd_branch',
-  'tokens',
-  'model'
-];
+export function makeUtils(maxWidth) {
+  return {
+    colors,
+    formatNumber: format.formatNumber,
+    format,
+    data,
+    displayWidth,
+    truncate,
+    width: maxWidth,
+  };
+}
 
-export async function renderStatusLine(payload, config) {
-  // Real utilities exposed to user custom segments
-  const utils = { colors, formatNumber };
-  let renderedSegments = [];
-  
-  if (!Array.isArray(config.segments)) config.segments = ['cwd_branch'];
+function toItem(segment, index) {
+  if (typeof segment === 'string') {
+    const builtin = resolveSegment(segment);
+    return builtin && { ...builtin, index };
+  }
+  if (typeof segment === 'function') {
+    return { name: segment.name || 'custom', priority: CUSTOM_PRIORITY, render: segment, index };
+  }
+  if (segment && typeof segment.render === 'function') {
+    const priority = Number.isFinite(segment.priority) ? segment.priority : CUSTOM_PRIORITY;
+    return { name: segment.name || 'custom', priority, render: segment.render, index };
+  }
+  return null;
+}
 
-  for (const segment of config.segments) {
-    let res = '';
-    let name = typeof segment === 'string' ? segment : 'custom';
-    
-    if (typeof segment === 'function') {
-      try {
-        res = (await segment(payload, utils)) || '';
-      } catch (err) {
-        res = colors.red(`[Error: ${err.message}]`);
-      }
-    } else if (SEGMENT_MAP[segment]) {
-      try {
-        res = (await SEGMENT_MAP[segment](payload, utils)) || '';
-      } catch (err) {
-        res = colors.red(`[Error: ${err.message}]`);
-      }
-    } else if (typeof segment === 'string') {
-      // Dynamic fallback: allow querying deep payload paths like "context_window.context_window_size"
-      const val = getPayloadPath(payload, segment);
-      if (val !== undefined && val !== null) {
-        res = String(val);
-      }
-    }
-    
-    if (res !== undefined && res !== null && res !== '') {
-      res = String(res) + '\x1b[0m'; // Prevent color bleeding
-      const strippedLines = colors.stripAnsi(res).split('\n');
-      const visLen = Math.max(...strippedLines.map(l => Array.from(l).length)); // Fix ZWJ emoji length
-      renderedSegments.push({ name, res, visLen });
+async function runSegment(item, payload, utils, timeoutMs) {
+  let timer;
+  const timeout = new Promise((resolve) => {
+    timer = setTimeout(resolve, timeoutMs, TIMEOUT);
+  });
+  try {
+    const result = await Promise.race([
+      Promise.resolve().then(() => item.render(payload, utils)),
+      timeout,
+    ]);
+    if (result === TIMEOUT) return colors.red(`[${item.name}: timeout]`);
+    return result == null || result === false ? '' : String(result);
+  } catch (err) {
+    return colors.red(`[${item.name}: ${err?.message ?? err}]`);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Lowest priority goes first; on a tie, the rightmost segment.
+function pickDrop(items) {
+  let drop = 0;
+  for (let i = 1; i < items.length; i++) {
+    const [a, b] = [items[i], items[drop]];
+    if (a.priority < b.priority || (a.priority === b.priority && a.index >= b.index)) drop = i;
+  }
+  return drop;
+}
+
+export async function renderStatusLine(
+  payload,
+  config,
+  { env = process.env, timeoutMs = SEGMENT_TIMEOUT_MS } = {}
+) {
+  const maxWidth = maxWidthFor(payload);
+  const utils = makeUtils(maxWidth);
+  const separator = typeof config.separator === 'string' ? config.separator : colors.dim(' | ');
+
+  const items = (Array.isArray(config.segments) ? config.segments : [])
+    .map(toItem)
+    .filter(Boolean);
+  const texts = await Promise.all(items.map((item) => runSegment(item, payload, utils, timeoutMs)));
+  const rendered = items
+    .map((item, i) => ({ ...item, text: texts[i] }))
+    .filter((item) => item.text !== '')
+    .map((item) => ({ ...item, text: item.text + RESET }));
+  for (const warning of config.warnings ?? []) {
+    rendered.push({
+      name: 'warning',
+      priority: WARNING_PRIORITY,
+      index: Infinity,
+      text: colors.yellow(`⚠ ${warning}`) + RESET,
+    });
+  }
+
+  const join = (list) => list.map((item) => item.text).join(separator);
+  if (!separator.includes('\n')) {
+    while (rendered.length > 1 && displayWidth(join(rendered)) > maxWidth) {
+      rendered.splice(pickDrop(rendered), 1);
     }
   }
-  
-  // Safety margin of 2 columns to prevent auto-wrap on the exact last column
-  const payloadWidth = typeof payload?.terminal_width === 'number' ? payload.terminal_width : null;
-  const safeWidth = payloadWidth === 0 ? Infinity : (payloadWidth || process.stdout.columns || 80) - 2;
-  
-  let sepStr = '';
-  try { sepStr = String(config.separator); } catch(e) { sepStr = ' | '; }
-  const separatorLength = Array.from(colors.stripAnsi(sepStr)).length;
-  let totalLength = renderedSegments.reduce((acc, s) => acc + s.visLen, 0) + Math.max(0, renderedSegments.length - 1) * separatorLength;
 
-  const priorityMap = new Map();
-  HIDE_PRIORITY.forEach((name, idx) => priorityMap.set(name, idx));
-
-  while (renderedSegments.length > 0 && totalLength > safeWidth) {
-    let dropIndex = -1;
-    let minPriority = Infinity;
-    for (let i = 0; i < renderedSegments.length; i++) {
-      const p = priorityMap.has(renderedSegments[i].name) ? priorityMap.get(renderedSegments[i].name) : Infinity;
-      if (p < minPriority) {
-        minPriority = p;
-        dropIndex = i;
-      }
-    }
-    
-    if (dropIndex === -1 || minPriority === Infinity) {
-      dropIndex = renderedSegments.length - 1;
-    }
-    
-    const dropped = renderedSegments.splice(dropIndex, 1)[0];
-    totalLength -= dropped.visLen;
-    if (renderedSegments.length > 0) totalLength -= separatorLength;
+  let out = join(rendered);
+  if (Number.isFinite(maxWidth)) {
+    out = out
+      .split('\n')
+      .map((line) => truncate(line, maxWidth))
+      .join('\n');
   }
-
-  return renderedSegments.map(s => s.res).join(config.separator);
+  if (env.NO_COLOR) out = stripAnsi(out);
+  return out;
 }
