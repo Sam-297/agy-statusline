@@ -20,7 +20,7 @@ export default {
       const version = payload?.version || "1.0.0";
       const artifacts = payload?.artifact_count || 0;
       const confirm = payload?.tool_confirmation_pending ? utils.colors.orange(' ⚡CONFIRM ') : '';
-      const sandbox = payload?.sandbox?.enabled ? '🔒' : '';
+      const sandbox = payload?.sandbox?.enabled ? ' (SECURE)' : '';
       
       const barLen = 20;
       const filled = Math.round(pct * barLen);
@@ -32,14 +32,14 @@ export default {
       else if (pct >= 0.7) coloredBar = utils.colors.orange(bar);
       else if (pct >= 0.5) coloredBar = utils.colors.yellow(bar);
 
-      const headerL = `${utils.colors.purple('╭─')} ${utils.colors.cyan(product + ' v' + version)} ${utils.colors.dim('::')} ${utils.colors.yellow('[' + tier + ']')} ${utils.colors.blue(model)}`;
+      const headerL = `${utils.colors.purple('+--')} ${utils.colors.cyan(product + ' v' + version)} ${utils.colors.dim('::')} ${utils.colors.yellow('[' + tier + ']')} ${utils.colors.blue(model)}`;
       
-      const identity = `${utils.colors.dim('👤')} ${email} ${utils.colors.dim('|')} ID:${sessionId} ${utils.colors.dim('|')} State: ${utils.colors.purple(state)}`;
-      const l2 = `${utils.colors.purple('├─')} ${identity}${confirm}${sandbox}`;
+      const identity = `${utils.colors.dim('User:')} ${email} ${utils.colors.dim('|')} ID:${sessionId} ${utils.colors.dim('|')} State: ${utils.colors.purple(state)}`;
+      const l2 = `${utils.colors.purple('|--')} ${identity}${confirm}${sandbox}`;
       
-      const gitInfo = branch ? ` ${utils.colors.green(' ' + branch)} ` : ' ';
+      const gitInfo = branch ? ` ${utils.colors.green('Git: ' + branch)} ` : ' ';
       const usageText = `${utils.formatNumber ? utils.formatNumber(used) : used}/${utils.formatNumber ? utils.formatNumber(total) : total}`;
-      const l3 = `${utils.colors.purple('├─')}${gitInfo}${utils.colors.dim('[')}${coloredBar}${utils.colors.dim(']')} ${usageText} ${utils.colors.dim('|')} 📦${artifacts}`;
+      const l3 = `${utils.colors.purple('|--')}${gitInfo}${utils.colors.dim('[')}${coloredBar}${utils.colors.dim(']')} ${usageText} ${utils.colors.dim('|')} Arts:${artifacts}`;
       
       let quotas = '';
       if (payload?.quota) {
@@ -49,19 +49,13 @@ export default {
          if (qa) quotas += `${utils.colors.orange('C:')}${Math.round(qa.remaining_fraction*100)}% `;
       }
       
-      const footerL = `${utils.colors.purple('╰─')} ${quotas}`;
-      const footerR = utils.colors.dim('→');
+      const footerL = `${utils.colors.purple('\\--')} ${quotas}`;
+      const footerR = utils.colors.dim('>');
       
-      // Calculate true visual width accounting for emojis
-      // 👤 and 📦 usually take 2 columns.
-      let emojiOffset = 0;
-      if (footerL.includes('👤')) emojiOffset += 1;
-      if (footerL.includes('📦')) emojiOffset += 1;
-      
-      const leftLen = strip(footerL).length - emojiOffset;
+      const leftLen = strip(footerL).length;
       const rightLen = strip(footerR).length;
       const space = Math.max(1, width - leftLen - rightLen - 1);
-      const filler = utils.colors.purple('─'.repeat(space));
+      const filler = utils.colors.purple('-'.repeat(space));
       
       const footer = `${footerL}${filler} ${footerR}`;
 
