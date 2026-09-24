@@ -19,7 +19,8 @@ export default {
     {
       name: 'model',
       priority: 10,
-      render: (p, { data }) => (data.getModel(p) ? `${magenta('▲')} ${cyan(data.getModel(p))}` : ''),
+      render: (p, { data }) =>
+        data.getModel(p) ? `${magenta('▲')} ${cyan(data.getModel(p))}` : '',
     },
     {
       name: 'branch',

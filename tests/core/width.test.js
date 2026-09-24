@@ -14,11 +14,13 @@ const cases = [
   ['😀', 2],
   ['🔒', 2],
   ['中文', 4],
-  ['👨‍👩‍👧', 2],
+  ['\u{1F468}\u200D\u{1F469}\u200D\u{1F467}', 2], // family: ZWJ sequence is one glyph
   ['🇺🇸', 2],
+  ['\u{1F44D}\u{1F3FD}', 2], // thumbs up + skin tone modifier
+  ['🇺🇸🇫🇷', 4], // two flags = two regional-indicator pairs
   ['⚠', 1],
-  ['⚠️', 2],
-  ['é', 1],
+  ['\u26A0\uFE0F', 2], // warning sign + emoji presentation selector
+  ['e\u0301', 1], // e + combining acute accent
   ['─╭├╰█░▓▒', 8],
   ['a\nlonger', 6],
 ];

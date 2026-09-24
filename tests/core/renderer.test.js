@@ -113,8 +113,7 @@ test('custom segments receive utils with data helpers and width', async () => {
     { ...active, terminal_width: 100 },
     {
       segments: [
-        (p, u) =>
-          `${u.data.getModel(p)}|${u.width}|${u.formatNumber(1500)}|${typeof u.format.bar}`,
+        (p, u) => `${u.data.getModel(p)}|${u.width}|${u.formatNumber(1500)}|${typeof u.format.bar}`,
       ],
     }
   );

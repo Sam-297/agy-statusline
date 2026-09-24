@@ -1,6 +1,0 @@
-{
-  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
-  "name": "agy-statusline",
-  "version": "1.0.0",
-  "description": "A blazing-fast, zero-dependency status line for the Antigravity CLI."
-}

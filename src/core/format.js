@@ -21,17 +21,14 @@ export function bar(pct, length = 10, { full = '█', empty = '░' } = {}) {
   return pctColor(clamped)(full.repeat(filled)) + colors.dim(empty.repeat(length - filled));
 }
 
-const timeFormatter = new Intl.DateTimeFormat('en-US', {
-  hourCycle: 'h23',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-const dayFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
+// Hand-rolled instead of Intl.DateTimeFormat, which costs ~4 ms to construct on every render.
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const pad = (n) => String(n).padStart(2, '0');
 
 export function formatTime(date) {
-  return timeFormatter.format(date);
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 export function formatDayTime(date) {
-  return `${dayFormatter.format(date)} ${timeFormatter.format(date)}`;
+  return `${DAYS[date.getDay()]} ${formatTime(date)}`;
 }

@@ -30,12 +30,16 @@ export function atomicWriteSync(filePath, content) {
       if (err.code === 'EBUSY' || err.code === 'EPERM' || err.code === 'EACCES') {
         retries--;
         if (retries === 0) {
-          try { fs.unlinkSync(tmpPath); } catch (e) {}
+          try {
+            fs.unlinkSync(tmpPath);
+          } catch (e) {}
           throw err;
         }
         syncSleep(50);
       } else {
-        try { fs.unlinkSync(tmpPath); } catch (e) {}
+        try {
+          fs.unlinkSync(tmpPath);
+        } catch (e) {}
         throw err;
       }
     }

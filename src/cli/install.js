@@ -26,9 +26,7 @@ export function findOnPath(name, env, platform) {
   const pathVar = env.PATH ?? env.Path ?? '';
   const delimiter = platform === 'win32' ? ';' : ':';
   const exts =
-    platform === 'win32'
-      ? (env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean)
-      : [''];
+    platform === 'win32' ? (env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean) : [''];
   for (const dir of pathVar.split(delimiter)) {
     if (!dir) continue;
     for (const ext of exts) {

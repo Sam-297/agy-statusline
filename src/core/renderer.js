@@ -82,9 +82,7 @@ export async function renderStatusLine(
   const utils = makeUtils(maxWidth);
   const separator = typeof config.separator === 'string' ? config.separator : colors.dim(' | ');
 
-  const items = (Array.isArray(config.segments) ? config.segments : [])
-    .map(toItem)
-    .filter(Boolean);
+  const items = (Array.isArray(config.segments) ? config.segments : []).map(toItem).filter(Boolean);
   const texts = await Promise.all(items.map((item) => runSegment(item, payload, utils, timeoutMs)));
   const rendered = items
     .map((item, i) => ({ ...item, text: texts[i] }))

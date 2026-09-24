@@ -3,10 +3,35 @@
 const ANSI_REGEX = /\x1B\[[0-9;?]*[ -/]*[@-~]|\x1B\][^\x07\x1B]*(?:\x07|\x1B\\)/g;
 const ANSI_SPLIT = /(\x1B\[[0-9;?]*[ -/]*[@-~])/;
 
-const segmenter = new Intl.Segmenter();
+// Minimal grapheme clustering (combining marks, ZWJ sequences, variation selectors,
+// skin tones, flag pairs). Intl.Segmenter would do this too but costs ~10 ms per process.
+const ZWJ = String.fromCodePoint(0x200d);
+const JOINS_PREVIOUS = /\p{Mn}|\p{Me}|\p{Cf}|\p{Emoji_Modifier}/u;
+const REGIONAL_INDICATOR = /\p{Regional_Indicator}/u;
+
+function* graphemes(str) {
+  let cluster = '';
+  let afterZwj = false;
+  let openFlag = false;
+  for (const ch of str) {
+    const isRegional = REGIONAL_INDICATOR.test(ch);
+    const joins =
+      cluster !== '' && (afterZwj || JOINS_PREVIOUS.test(ch) || (isRegional && openFlag));
+    if (cluster !== '' && !joins) {
+      yield cluster;
+      cluster = '';
+    }
+    openFlag = isRegional && !joins;
+    cluster += ch;
+    afterZwj = ch === ZWJ;
+  }
+  if (cluster !== '') yield cluster;
+}
+
+const ASCII = /^[\x20-\x7E]*$/;
 const WIDE =
-  /[ᄀ-ᅟ⺀-〾ぁ-㏿㐀-䶿一-鿿ꀀ-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦]|[\u{20000}-\u{3FFFD}]/u;
-const EMOJI = /\p{Emoji_Presentation}|\p{Extended_Pictographic}️/u;
+  /[\u1100-\u115F\u2E80-\u303E\u3041-\u33FF\u3400-\u4DBF\u4E00-\u9FFF\uA000-\uA4CF\uAC00-\uD7A3\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFF60\uFFE0-\uFFE6]|[\u{20000}-\u{3FFFD}]/u;
+const EMOJI = /\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F/u;
 const ZERO_WIDTH = /^(?:\p{Mn}|\p{Me}|\p{Cf})+$/u;
 
 export function stripAnsi(str) {
@@ -20,8 +45,9 @@ function graphemeWidth(grapheme) {
 }
 
 function lineWidth(line) {
+  if (ASCII.test(line)) return line.length;
   let width = 0;
-  for (const { segment } of segmenter.segment(line)) width += graphemeWidth(segment);
+  for (const grapheme of graphemes(line)) width += graphemeWidth(grapheme);
   return width;
 }
 
@@ -41,10 +67,10 @@ export function truncate(str, width) {
       out += part;
       continue;
     }
-    for (const { segment } of segmenter.segment(part)) {
-      const w = graphemeWidth(segment);
+    for (const grapheme of graphemes(part)) {
+      const w = graphemeWidth(grapheme);
       if (used + w > width - 1) return `${out}…\x1B[0m`;
-      out += segment;
+      out += grapheme;
       used += w;
     }
   }

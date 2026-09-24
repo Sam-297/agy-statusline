@@ -3,7 +3,14 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { getModel, getCwd, readGitBranch, getBranch, getContext, getQuota } from '../../src/core/data.js';
+import {
+  getModel,
+  getCwd,
+  readGitBranch,
+  getBranch,
+  getContext,
+  getQuota,
+} from '../../src/core/data.js';
 import { fixture } from '../helpers.js';
 
 const active = fixture('linux-git-active');

@@ -13,8 +13,7 @@ test('parsePayload safely handles invalid JSON', (t) => {
   assert.strictEqual(result, null);
 });
 
-test('parsePayload enforces 64MB size limit', (t) => {
-  const hugeJson = '{"a":"' + 'A'.repeat(64 * 1024 * 1024 + 100) + '"}';
-  const result = parsePayload(hugeJson);
-  assert.strictEqual(result, null);
+test('parsePayload rejects input over 1 MB', () => {
+  const huge = '{"a":"' + 'A'.repeat(1024 * 1024) + '"}';
+  assert.strictEqual(parsePayload(huge), null);
 });

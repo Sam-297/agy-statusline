@@ -21,5 +21,5 @@ export default {
   googleBlue: (text) => wrap('\x1b[38;2;66;133;244m', text),
   claudeOrange: (text) => wrap('\x1b[38;2;217;119;87m', text),
   openaiGreen: (text) => wrap('\x1b[38;2;16;163;127m', text),
-  stripAnsi
+  stripAnsi,
 };
