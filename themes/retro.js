@@ -1,41 +1,52 @@
+// Green-phosphor terminal. Real data only.
+const green = (s) => `\x1b[1;32m${s}\x1b[0m`;
+const dimGreen = (s) => `\x1b[2;32m${s}\x1b[0m`;
+
 export default {
-  separator: "\x1B[32m▒\x1B[0m",
+  separator: '\x1b[32m ▒ \x1b[0m',
   segments: [
-    function sysVersion(payload, utils) {
-      const v = payload?.version || "1.0";
-      return `\x1B[42;30m SYS.v${v} \x1B[0m`;
+    {
+      name: 'version',
+      priority: 1,
+      render: (p) => (p?.version ? `\x1b[42;30m SYS.v${p.version} \x1b[0m` : ''),
     },
-    function sysModel(payload, utils) {
-      const model = payload?.model?.display_name?.toUpperCase() || "SYS";
-      return `\x1B[1;32m ${model} \x1B[0m`;
+    {
+      name: 'model',
+      priority: 10,
+      render: (p, { data }) => (data.getModel(p) ? green(data.getModel(p).toUpperCase()) : ''),
     },
-    function sysState(payload, utils) {
-      const state = payload?.agent_state?.toUpperCase() || 'IDLE';
-      const c = payload?.tool_confirmation_pending ? `\x1B[5;32m>>INPUT<<\x1B[0m ` : '';
-      return ` \x1B[2;32m[\x1B[0m\x1B[1;32m${c}${state}\x1B[0m\x1B[2;32m]\x1B[0m `;
+    {
+      name: 'agent_state',
+      priority: 4,
+      render: (p) =>
+        p?.agent_state
+          ? `${dimGreen('[')}${green(p.agent_state.toUpperCase())}${dimGreen(']')}`
+          : '',
     },
-    function sysMem(payload, utils) {
-      const cw = payload?.context_window || {};
-      const used = (cw.total_input_tokens || 0) + (cw.total_output_tokens || 0);
-      const total = cw.context_window_size || 1;
-      const pct = used / total;
-      
-      const barLen = 10;
-      const filled = Math.round(pct * barLen);
-      const empty = Math.max(0, barLen - filled);
-      const bar = '█'.repeat(filled) + '░'.repeat(empty);
-      
-      return ` \x1B[2;32mMEM[\x1B[0m\x1B[1;32m${bar}\x1B[0m\x1B[2;32m]\x1B[0m\x1B[1;32m${utils.formatNumber(used)}/${utils.formatNumber(total)}B\x1B[0m `;
+    {
+      name: 'context',
+      priority: 9,
+      render: (p, { data, formatNumber }) => {
+        const c = data.getContext(p);
+        if (!c) return '';
+        const filled = Math.min(10, Math.max(0, Math.round(c.pct / 10)));
+        const meter = '█'.repeat(filled) + '░'.repeat(10 - filled);
+        return `${dimGreen('MEM[')}${green(meter)}${dimGreen(']')} ${green(`${formatNumber(c.used)}/${formatNumber(c.total)}`)}`;
+      },
     },
-    function sysNet(payload, utils) {
-      let quotas = '';
-      if (payload?.quota) {
-         const qg = payload.quota['gemini-5h'];
-         const qa = payload.quota['3p-5h'] || payload.quota['anthropic-5h'];
-         if (qg) quotas += `\x1B[2;32mG:\x1B[0m\x1B[1;32m${Math.round((1 - qg.remaining_fraction)*100)}%\x1B[0m `;
-         if (qa) quotas += `\x1B[2;32mC:\x1B[0m\x1B[1;32m${Math.round((1 - qa.remaining_fraction)*100)}%\x1B[0m `;
-      }
-      return quotas ? ` ${quotas}` : ' \x1B[2;32mNET:OK\x1B[0m ';
-    }
-  ]
+    {
+      name: 'quota_gemini',
+      priority: 8,
+      render: (p, { data }) => {
+        const parts = [
+          ['G', 'gemini'],
+          ['3P', '3p'],
+        ]
+          .map(([label, provider]) => [label, data.getQuota(p, provider)?.h5])
+          .filter(([, q]) => q)
+          .map(([label, q]) => `${label}:${q.usedPct}%`);
+        return parts.length ? `${dimGreen('QUOTA')} ${green(parts.join(' '))}` : '';
+      },
+    },
+  ],
 };
