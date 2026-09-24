@@ -56,8 +56,13 @@ jobs:
         if errorlevel 1 exit /b 1
         type out.txt
         findstr /C:"Gemini 3.1 Pro" out.txt || exit /b 1
-    - name: install registers the bare command
-      shell: cmd
+    - name: install registers a Windows-safe command, and that command renders
+      shell: pwsh
       run: |
         agy-statusline install
-        findstr /C:"\"command\": \"agy-statusline\"" "%USERPROFILE%\.gemini\antigravity-cli\settings.json" || exit /b 1
+        $cmd = (Get-Content "$env:USERPROFILE\.gemini\antigravity-cli\settings.json" -Raw | ConvertFrom-Json).statusLine.command
+        "registered: $cmd"
+        if ($cmd -match '"') { throw "agy on Windows can't run quoted commands: $cmd" }
+        $out = Get-Content tests\fixtures\payloads\windows-idle.json -Raw | cmd /c $cmd
+        $out
+        if ("$out" -notmatch 'Gemini 3.1 Pro') { throw 'registered command did not render' }

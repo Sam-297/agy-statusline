@@ -53,16 +53,15 @@ function isOurWindowsShim(found, scriptPath) {
 
 export function chooseCommand({ env, platform, scriptPath, nodePath }) {
   if (platform !== 'win32') return { command: `"${nodePath}" "${scriptPath}"` };
+  // Fastest: node directly (npm's .cmd shim adds ~20 ms per render). Only possible without spaces.
+  if (!/\s/.test(scriptPath)) return { command: `node ${scriptPath}` };
   const found = findOnPath(BIN_NAME, env, platform);
   if (found && isOurWindowsShim(found, scriptPath)) return { command: BIN_NAME };
-  if (/\s/.test(scriptPath)) {
-    return {
-      error:
-        `agy on Windows can't run a command whose path contains spaces:\n  ${scriptPath}\n` +
-        `Install from npm instead:  npm i -g ${PACKAGE_NAME}  then run  agy-statusline install`,
-    };
-  }
-  return { command: `node ${scriptPath}` };
+  return {
+    error:
+      `agy on Windows can't run a command whose path contains spaces:\n  ${scriptPath}\n` +
+      `Install from npm instead:  npm i -g ${PACKAGE_NAME}  then run  agy-statusline install`,
+  };
 }
 
 export function install({ home, env, platform, configDir, scriptPath, nodePath, out, err }) {

@@ -45,17 +45,33 @@ test('linux/mac: absolute quoted node + script (sh -c handles quotes)', () => {
   );
 });
 
-test('windows: bare command when our npm shim is on PATH', () => {
+function fakeNpmPrefix(dirName) {
   const { root } = sandbox();
-  const npmDir = path.join(root, 'npm');
+  const npmDir = path.join(root, dirName);
   const pkgBin = path.join(npmDir, 'node_modules', '@sam-297', 'agy-statusline', 'bin');
   fs.mkdirSync(pkgBin, { recursive: true });
   fs.writeFileSync(path.join(pkgBin, 'agy-statusline'), '');
   fs.writeFileSync(path.join(npmDir, 'agy-statusline.cmd'), '');
+  return { npmDir, scriptPath: path.join(pkgBin, 'agy-statusline') };
+}
+
+test('windows: path without spaces → node <path> directly (skips the ~20 ms npm .cmd shim)', () => {
+  const { npmDir, scriptPath } = fakeNpmPrefix('npm');
   const res = chooseCommand({
     env: { Path: npmDir, PATHEXT: '.EXE;.CMD' },
     platform: 'win32',
-    scriptPath: path.join(pkgBin, 'agy-statusline'),
+    scriptPath,
+    nodePath: 'C:\\node.exe',
+  });
+  assert.deepStrictEqual(res, { command: `node ${scriptPath}` });
+});
+
+test('windows: path with spaces → bare command through our npm shim on PATH', () => {
+  const { npmDir, scriptPath } = fakeNpmPrefix('npm dir');
+  const res = chooseCommand({
+    env: { Path: npmDir, PATHEXT: '.EXE;.CMD' },
+    platform: 'win32',
+    scriptPath,
     nodePath: 'C:\\node.exe',
   });
   assert.deepStrictEqual(res, { command: 'agy-statusline' });
