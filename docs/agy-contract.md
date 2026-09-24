@@ -12,7 +12,7 @@ If you change behavior based on this doc, re-verify it first: agy updates itself
 "statusLine": { "type": "command", "command": "<command string>", "enabled": true }
 ```
 
-- `type` must be `"command"`. (`--setup` currently prints `"custom"`, which is wrong.)
+- `type` must be `"command"`. (v1's `--setup` printed `"custom"`, which was wrong.)
 - It can also be set live from inside agy with `/statusline <command>` (persists to settings.json). `/statusline delete` reverts to the built-in; `/statusline on|off` toggles it.
 - `hooks.json` plays no part in the status line.
 
@@ -74,7 +74,7 @@ Windows with an `sh` on PATH (Git Bash etc.) likely goes through `sh -c` like Li
 
 Not observed but present as types in the agy binary (probably omitted when empty): `StatusLineCost`, `StatusLineVim`, `StatusLineSubagent`, `StatusLineAgent`, `StatusLineBattle`. Don't build on them until they have been seen in a payload.
 
-Fields the current code expects that **don't exist**: `git.branch`, `git.cwd`, `artifact_count`, `tool_confirmation_pending` (the last two may have been dropped since 1.0.10).
+Fields v1 relied on that **don't exist** anymore: `git.branch`, `git.cwd`, `artifact_count`, `tool_confirmation_pending` (the last two may have been dropped since 1.0.10).
 
 ## Performance
 

@@ -19,6 +19,7 @@ npx prettier --write <files>                               # single quotes, semi
 node bin/agy-statusline preview [theme]                    # render themes with SAMPLE_PAYLOAD
 node bin/agy-statusline < tests/fixtures/payloads/linux-git-active.json   # render with your real config
 npm run screenshots                                        # regenerate docs/theme_*.png (puppeteer)
+npm run build                                              # build the render bundle (normally only via npm pack); --clean removes it
 ```
 
 Tests are hermetic: they use temp `XDG_CONFIG_HOME` / `HOME`. Keep it that way; never touch the real `~/.config/agy-statusline` or `~/.gemini` in tests. Payload fixtures in `tests/fixtures/payloads/` are anonymized captures from real agy; `tests/helpers.js` loads them.
@@ -26,14 +27,14 @@ Tests are hermetic: they use temp `XDG_CONFIG_HOME` / `HOME`. Keep it that way; 
 ## Hard rules (from observed agy behavior)
 
 - **Render mode always exits 0 and finishes well under 4 s.** Any non-zero exit or timeout makes agy print a `⚠ Statusline Error` block into the user's chat. `src/core/run.js` enforces a 3 s hard deadline; each segment gets 300 ms (`SEGMENT_TIMEOUT_MS`).
-- **Windows agy splits the command on whitespace and keeps quotes literally.** The registered command must be the bare `agy-statusline` (npm shim on PATH) or an unquoted path without spaces. Linux runs it via `sh -c`, so quoted absolute paths are fine there. See `chooseCommand` in `src/cli/install.js`.
+- **Windows agy splits the command on whitespace and keeps quotes literally.** `install` registers `node <path>` when the path has no spaces (fastest), else the bare `agy-statusline` npm shim. Never quote. Linux runs it via `sh -c`, so quoted absolute paths are fine there. See `chooseCommand` in `src/cli/install.js`.
 - **agy sends no git branch** (only `vcs.type`), so `data.readGitBranch` reads `.git/HEAD` from disk (worktrees supported, no `git` spawn).
 - stdout is a pipe, not a TTY, and agy sets no `COLUMNS`: use `payload.terminal_width`.
 - Don't show `email` / `session_id` by default.
 
 ## Architecture
 
-`bin/agy-statusline`: piped stdin with no args goes to render mode (`src/core/run.js`); anything else goes to the CLI (`src/cli/index.js`). Both are lazy-imported to keep startup small.
+`bin/agy-statusline`: piped stdin with no args goes to render mode; anything else goes to the CLI (`src/cli/index.js`). Render mode imports `src/core/run.bundle.js` if present, else `src/core/run.js`. The bundle is a one-file esbuild build of the render path (`scripts/build.mjs`). It only exists inside published packages (created on `prepack`, deleted on `postpack`), because each ESM file costs ~3.5 ms to load on Windows. `tests/integration/bundle.test.js` checks bundle output equals source output.
 
 Render pipeline: `readStdin` → `parsePayload` → `loadConfig` → `renderStatusLine` → stdout (CRLF on Windows).
 
