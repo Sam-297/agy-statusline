@@ -1,63 +1,60 @@
 # agy-statusline
 
-**A lightweight terminal HUD for the Antigravity CLI (agy).**
+**A fast, programmable status line for the Antigravity CLI (agy).**
 
-`agy-statusline` provides a dynamic heads-up display directly in your terminal.
+agy's built-in status line shows the model name. `agy-statusline` shows what you actually need while you work: your Gemini and third-party quota with reset times, context-window usage, the git branch, and more. You can rearrange all of it, or write your own segments in JavaScript.
 
 ![Default Theme](docs/theme_default.png)
 ![Dashboard Theme](docs/theme_dashboard.png)
 
-### Why `agy-statusline`?
+- **Fast:** ~20 ms on top of Node's own startup, and zero runtime dependencies.
+- **Works on Linux, macOS and Windows** (PowerShell or cmd).
+- **Six themes** built in, and a config that's plain JavaScript when you want more.
+- **Never gets in agy's way:** a slow or broken segment shows an inline marker instead of breaking the line.
 
-- **Local Execution:** Everything happens locally. No waiting on API responses to update your HUD.
-- **Zero Dependencies:** Built lean and mean. Absolutely zero npm runtime dependencies.
-- **Endless Customizability:** Choose from a gallery of beautiful pre-built themes, or program your own completely custom layout in JavaScript.
+## Install
 
-Get the data you need, the moment you need it, without slowing down your workflow.
+Requires Node.js 20+.
 
-## Installation & Setup
-
-Welcome to the `agy-statusline` setup guide! Follow these simple steps to get your blazing-fast status line up and running. *(Requires **Node.js** and **Git** to be installed).*
-
-### 1. Install the Plugin
-
-**macOS / Linux:**
 ```bash
-mkdir -p ~/.agy-plugins
-git clone https://github.com/Sam-297/agy-statusline ~/.agy-plugins/agy-statusline
-agy plugin install ~/.agy-plugins/agy-statusline
+npm i -g @sam-297/agy-statusline
+agy-statusline install
 ```
 
-**Windows (PowerShell):**
-```powershell
-mkdir -Force $HOME\.agy-plugins
-git clone https://github.com/Sam-297/agy-statusline $HOME\.agy-plugins\agy-statusline
-agy plugin install $HOME\.agy-plugins\agy-statusline
-```
+Restart agy. `install` points agy's `statusLine` setting at `agy-statusline` and remembers what was there before.
 
-### 2. Activate the Status Line
+**Uninstall:** `agy-statusline uninstall`, then `npm rm -g @sam-297/agy-statusline`.
 
-To activate the status line, navigate to the plugin directory and run the setup command to get your activation code:
+**From source:**
 
-**macOS / Linux:**
 ```bash
-node ~/.agy-plugins/agy-statusline/bin/agy-statusline --setup
+git clone https://github.com/Sam-297/agy-statusline
+cd agy-statusline
+npm link
+agy-statusline install
 ```
 
-**Windows (PowerShell):**
-```powershell
-node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --setup
+## Themes
+
+```bash
+agy-statusline themes           # list
+agy-statusline preview          # see them all, rendered with sample data
+agy-statusline theme dashboard  # switch (agy picks it up on its next refresh)
 ```
 
-## Themes & Customization
+Want your own layout? See the **[Themes & Customization guide](themes/README.md)**.
 
-`agy-statusline` works perfectly out of the box, but it is also 100% programmable. You can customize the layout, colors, and segments by either writing a personal configuration file or using one of our pre-built themes (Dashboard, Cyberpunk, Retro, etc.).
+## Troubleshooting
 
-🎨 **[Check out the Themes Gallery & Customization Guide](themes/README.md)**
+- **Nothing shows up:** restart agy. Then check that `statusLine.command` in `~/.gemini/antigravity-cli/settings.json` (Windows: `%USERPROFILE%\.gemini\antigravity-cli\settings.json`) says `agy-statusline` or points at this package.
+- **A `⚠ …` appears in the line:** it's a problem with your config, such as a typo'd segment name or a syntax error. Fix `~/.config/agy-statusline/config.mjs`.
+- **A segment shows `[name: timeout]`:** a custom segment took longer than 300 ms. Make it faster or cache its result.
+- **Windows, installed from source into a folder with spaces:** agy on Windows can't run such paths. Install from npm instead (see above).
 
-There you will find:
-- Screenshots and one-line setup commands for all pre-built themes.
-- A full tutorial on how to program your own **Custom Themes** in JavaScript.
-- Instructions on using the built-in CLI to save and manage your configurations.
+## How it works
 
-*(Note: Once installed and configured, simply restart your Antigravity CLI session to see your new status line in action!)*
+agy runs the status line command on every refresh and pipes session JSON (model, context window, quota, …) to it on stdin. What agy sends and how it runs the command on each OS is documented in [docs/agy-contract.md](docs/agy-contract.md).
+
+## License
+
+MIT

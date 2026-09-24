@@ -1,142 +1,101 @@
-# agy-statusline Themes
+# Themes & Customization
 
-This directory contains pre-built themes for `agy-statusline`. 
+## Pick a theme
 
-## How to Apply a Theme
-
-To apply a theme, run the `--load-theme` command corresponding to your OS. Once loaded, restart your `agy` session to see the new status line in action.
-
-### Default
-
-![Default Theme](../docs/theme_default.png)
-
-To go back to the standard, minimalist default look:
-
-**macOS / Linux:**
 ```bash
-node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme default
-```
-**Windows (PowerShell):**
-```powershell
-node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --load-theme default
+agy-statusline themes              # list
+agy-statusline preview [name]      # render with sample data
+agy-statusline theme <name>        # switch
 ```
 
-### Cyberpunk
+agy picks up the change on its next refresh, so there's no need to restart.
 
-![Cyberpunk Theme](../docs/theme_cyberpunk.png)
+| Theme | |
+|---|---|
+| `default` | ![default](../docs/theme_default.png) |
+| `progress-bar` | ![progress-bar](../docs/theme_progress-bar.png) |
+| `elegant` | ![elegant](../docs/theme_elegant.png) |
+| `dashboard` | ![dashboard](../docs/theme_dashboard.png) |
+| `cyberpunk` | ![cyberpunk](../docs/theme_cyberpunk.png) |
+| `retro` | ![retro](../docs/theme_retro.png) |
 
-**macOS / Linux:**
-```bash
-node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme cyberpunk
-```
-**Windows (PowerShell):**
-```powershell
-node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --load-theme cyberpunk
-```
+## Your config
 
-### Dashboard
+`~/.config/agy-statusline/config.mjs` (or `$XDG_CONFIG_HOME/agy-statusline/config.mjs`; on Windows `%USERPROFILE%\.config\agy-statusline\config.mjs`). `agy-statusline install` creates it. It's plain JavaScript:
 
-![Dashboard Theme](../docs/theme_dashboard.png)
-
-**macOS / Linux:**
-```bash
-node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme dashboard
-```
-**Windows (PowerShell):**
-```powershell
-node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --load-theme dashboard
-```
-
-### Elegant
-
-![Elegant Theme](../docs/theme_elegant.png)
-
-**macOS / Linux:**
-```bash
-node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme elegant
-```
-**Windows (PowerShell):**
-```powershell
-node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --load-theme elegant
-```
-
-### Progress Bar
-
-![Progress Bar Theme](../docs/theme_progress-bar.png)
-
-**macOS / Linux:**
-```bash
-node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme progress-bar
-```
-**Windows (PowerShell):**
-```powershell
-node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --load-theme progress-bar
-```
-
-### Retro
-
-![Retro Theme](../docs/theme_retro.png)
-
-**macOS / Linux:**
-```bash
-node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme retro
-```
-**Windows (PowerShell):**
-```powershell
-node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --load-theme retro
-```
-
-## Custom Themes
-
-The plugin comes with a fully-featured built-in CLI to manage your own personalized themes. 
-
-### How to Create a Custom Theme
-
-To build your own theme, simply edit your active configuration file located at:
-- **Mac/Linux:** `~/.config/agy-statusline/config.mjs`
-- **Windows:** `$HOME\.config\agy-statusline\config.mjs`
-
-Because the configuration file is pure JavaScript, you can export whatever layout you like using the built-in segments, or even write your own custom functions! You can use an included theme to tweak it or create an entirely new one.
-
-**Example Custom Layout:**
-```javascript
+```js
 export default {
-  separator: " | ",
+  theme: 'default',            // start from a theme…
+  separator: ' | ',            // …and override anything
   segments: [
-    "cwd_branch",
-    "model",
-    "tokens",
-    // You can even write inline custom functions!
-    (payload, utils) => payload.sandbox?.enabled ? '🔒 SECURE' : ''
-  ]
+    'model',
+    'cwd_branch',
+    'context',
+    'quota_gemini',
+    // Custom segment: return a string ('' hides it). Must finish within 300 ms.
+    (payload, utils) => (payload.sandbox?.enabled ? utils.colors.green('sandboxed') : ''),
+    // With a priority: higher is kept longer when the terminal is narrow (built-ins use 1–10).
+    { name: 'mine', priority: 9, render: (payload, utils) => 'always here' },
+  ],
 };
 ```
 
-#### Available Built-in Segments
+If something in the config is wrong (unknown segment, syntax error), a yellow `⚠ …` shows up in the status line, telling you what.
 
-You can mix and match any of these pre-built strings in your `segments` array:
-`"model"`, `"cwd_branch"`, `"cwd"`, `"branch"`, `"tokens"`, `"output_tokens"`, `"quota_gemini"`, `"quota_anthropic"`, `"quota_openai"`, `"version"`, `"extras"`, `"agent_state"`, `"plan_tier"`, `"product"`, `"session_id"`, `"session_id_short"`, `"email"`, `"email_masked"`, `"artifact_count"`, `"sandbox"`, `"exceeds_200k"`.
+When the terminal is too narrow, the lowest-priority segments are dropped first. A single segment that's still too wide gets truncated with `…`. Multi-line layouts (a `'\n'` separator) truncate each line instead.
 
-### Managing Your Themes
+## Built-in segments
 
-Whenever you manually edit your configuration file to create a layout you like, you can save it so you don't lose it when testing other themes. 
+| Segment | Shows | Priority |
+|---|---|---|
+| `model` | Model name | 10 |
+| `context` | Context used / size and % (`21.4k/250k (9%)`) | 9 |
+| `context_bar` | Context as a colored bar | 8 |
+| `quota_gemini` | Gemini quota used, 5h and 7d, with reset times | 8 |
+| `quota_3p` | Third-party (Claude/GPT) quota used, 5h and 7d, with reset times | 7 |
+| `cwd_branch` | Folder name and git branch (`demo@main`) | 6 |
+| `cwd` | Folder name (`~` for home) | 5 |
+| `branch` | Git branch | 5 |
+| `agent_state` | `idle` / `working` / … | 4 |
+| `flags` | `sandbox` + `exceeds_200k` together | 4 |
+| `exceeds_200k` | `⚠ >200k` when over 200k tokens | 4 |
+| `sandbox` | 🔒 when sandboxed | 3 |
+| `output_tokens` | Total output tokens | 3 |
+| `plan_tier` | e.g. `Google AI Pro` | 2 |
+| `product` | `antigravity` | 2 |
+| `session_id_short` | First 8 characters of the session id | 2 |
+| `email_masked` | `j***@example.com` | 2 |
+| `email` | Your full account email (think before screenshots) | 2 |
+| `version` | agy version | 1 |
 
-**1. Save your active config as a theme:**
-This securely copies your current active config to the internal themes directory.
-- **Mac/Linux:** `node ~/.agy-plugins/agy-statusline/bin/agy-statusline --save-theme <name>`
-- **Windows:** `node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --save-theme <name>`
+**Aliases** (from 1.x): `tokens` → `context`, `quota_anthropic` / `quota_openai` → `quota_3p`, `extras` → `flags`, `session_id` → `session_id_short`.
 
-**2. List all available themes:**
-Shows both pre-built themes and your saved custom themes.
-- **Mac/Linux:** `node ~/.agy-plugins/agy-statusline/bin/agy-statusline --list-themes`
-- **Windows:** `node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --list-themes`
+**Payload paths:** any top-level payload field (`plan_tier`, `terminal_width`, …) or dotted path (`'context_window.used_percentage'`) prints that value.
 
-**3. Load your custom theme:**
-Applies the theme back to your active configuration (just like the pre-built themes above).
-- **Mac/Linux:** `node ~/.agy-plugins/agy-statusline/bin/agy-statusline --load-theme <name>`
-- **Windows:** `node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --load-theme <name>`
+## `utils` reference
 
-**4. Delete a custom theme:**
-Deletes the theme from the saved list.
-- **Mac/Linux:** `node ~/.agy-plugins/agy-statusline/bin/agy-statusline --delete-theme <name>`
-- **Windows:** `node $HOME\.agy-plugins\agy-statusline\bin\agy-statusline --delete-theme <name>`
+The second argument every custom segment receives:
+
+| | |
+|---|---|
+| `colors.*` | `dim`, `blue`, `orange`, `green`, `cyan`, `red`, `yellow`, `purple`, `white`, `googleBlue`, `claudeOrange`, `openaiGreen`, `stripAnsi` |
+| `formatNumber(n)` | `21367` → `21.4k` |
+| `format.pctColor(pct)` | Returns the color function for a percentage (green → yellow → orange → red) |
+| `format.bar(pct, length?, { full?, empty? })` | Colored progress bar |
+| `format.formatTime(date)` / `formatDayTime(date)` | `14:05` / `Mon 14:05` |
+| `data.getModel(p)` | Model name or `null` |
+| `data.getCwd(p)` | Working directory |
+| `data.getBranch(p)` | Git branch or `null` |
+| `data.getContext(p)` | `{ used, total, pct }` or `null` |
+| `data.getQuota(p, 'gemini' \| '3p')` | `{ h5, weekly }` with `{ usedPct, resetAt }` each, or `null` |
+| `displayWidth(str)` / `truncate(str, width)` | Terminal-column-aware (ANSI, emoji, CJK) |
+| `width` | Columns available for the line |
+
+The full payload agy sends: [docs/agy-contract.md](../docs/agy-contract.md#payload).
+
+## Upgrading from 1.x
+
+- `--setup`, `--load-theme <name>` and `--list-themes` still work (as `install`, `theme`, `themes`).
+- `--save-theme` and `--delete-theme` were removed: themes are picked by name now, and your customizations live in `config.mjs`.
+- An old config with copied theme code keeps working. `agy-statusline theme <name>` backs it up to `config.mjs.bak` before switching.
+- Replace the old `hooks/status-line.*` command in agy's settings by running `agy-statusline install`.

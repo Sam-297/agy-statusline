@@ -4,51 +4,50 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`agy-statusline` is a status line plugin for the Antigravity CLI (`agy`). The host CLI pipes a JSON payload to it on stdin, and it writes a single rendered (ANSI-colored, possibly multi-line) string to stdout. It must not have **any runtime npm dependencies**: it uses only `node:` built-ins, it is ESM (`"type": "module"`), and it needs Node >=18. CI runs on Node 20/22 across ubuntu, macOS and Windows.
+`agy-statusline` (npm: `@sam-297/agy-statusline`, bin: `agy-statusline`) is a status line for the Antigravity CLI (`agy`). agy runs it on every refresh, pipes session JSON to stdin, and shows whatever it prints (ANSI colors and multiple lines are fine). **Zero runtime npm dependencies**: only `node:` built-ins. ESM, Node >=20. CI runs Node 20/22 on ubuntu, macOS and Windows, plus a Windows job that runs through the npm shim exactly as agy does.
+
+**Read [docs/agy-contract.md](docs/agy-contract.md) before changing anything about invocation, install, or payload handling.** It records how agy actually behaves, measured on real agy on Linux and native Windows. [docs/audit.md](docs/audit.md) has the findings and decisions behind the 2.0 rebuild.
 
 ## Commands
 
 ```bash
-npm test                                   # node --test (runs all tests/**/*.test.js)
-node --test tests/core/renderer.test.js    # single test file
-node --test --test-name-pattern="custom" tests/core/renderer.test.js   # single test by name
-npx eslint .                               # lint (flat config in eslint.config.mjs)
-npx prettier --write <file>                # format: single quotes, semicolons, printWidth 100
-node scripts/preview-all.js                # print every built-in theme against a mock payload
-node bin/agy-statusline < dummy.json       # render with your real ~/.config/agy-statusline/config.mjs
+npm test                                                   # node --test, all tests/**/*.test.js
+node --test tests/core/renderer.test.js                    # one file
+node --test --test-name-pattern="timeout" tests/core/renderer.test.js   # one test
+npm run lint                                               # eslint (0 errors required; CI enforces it)
+npx prettier --write <files>                               # single quotes, semicolons, width 100
+node bin/agy-statusline preview [theme]                    # render themes with SAMPLE_PAYLOAD
+node bin/agy-statusline < tests/fixtures/payloads/linux-git-active.json   # render with your real config
+npm run screenshots                                        # regenerate docs/theme_*.png (puppeteer)
 ```
 
-CI only runs `npm test`, not lint. ESLint currently reports existing errors and warnings.
+Tests are hermetic: they use temp `XDG_CONFIG_HOME` / `HOME`. Keep it that way; never touch the real `~/.config/agy-statusline` or `~/.gemini` in tests. Payload fixtures in `tests/fixtures/payloads/` are anonymized captures from real agy; `tests/helpers.js` loads them.
 
-`tests/integration/cli.test.js` runs `--setup`, which creates `~/.config/agy-statusline/config.mjs` (or `$XDG_CONFIG_HOME/agy-statusline/`) if it is missing. Tests are not sandboxed from the real user config.
+## Hard rules (from observed agy behavior)
+
+- **Render mode always exits 0 and finishes well under 4 s.** Any non-zero exit or timeout makes agy print a `⚠ Statusline Error` block into the user's chat. `src/core/run.js` enforces a 3 s hard deadline; each segment gets 300 ms (`SEGMENT_TIMEOUT_MS`).
+- **Windows agy splits the command on whitespace and keeps quotes literally.** The registered command must be the bare `agy-statusline` (npm shim on PATH) or an unquoted path without spaces. Linux runs it via `sh -c`, so quoted absolute paths are fine there. See `chooseCommand` in `src/cli/install.js`.
+- **agy sends no git branch** (only `vcs.type`), so `data.readGitBranch` reads `.git/HEAD` from disk (worktrees supported, no `git` spawn).
+- stdout is a pipe, not a TTY, and agy sets no `COLUMNS`: use `payload.terminal_width`.
+- Don't show `email` / `session_id` by default.
 
 ## Architecture
 
-**Runtime flow** ([bin/agy-statusline](bin/agy-statusline)): parse argv. Theme commands (`--list-themes`, `--save-theme`, `--load-theme`, `--delete-theme`) and `--setup` exit early. Otherwise it reads stdin, with a 1.5s timeout and a 64MB cap. Then `parsePayload`, then `loadConfig(~/.config/agy-statusline/config.mjs)`, then `renderStatusLine(payload, config)`, then stdout. On Windows it converts `\n` to `\r\n`. Failures are silent and exit 0 so the host's UI never breaks.
+`bin/agy-statusline`: piped stdin with no args goes to render mode (`src/core/run.js`); anything else goes to the CLI (`src/cli/index.js`). Both are lazy-imported to keep startup small.
 
-The host invokes the plugin through `hooks/status-line.{sh,cmd,ps1}`. These wrappers resolve the plugin dir, clear `NODE_OPTIONS`, and exec the bin. `--setup` ([src/core/setup.js](src/core/setup.js)) prints the `statusLine` JSON snippet that users paste into `~/.gemini/antigravity-cli/settings.json`.
+Render pipeline: `readStdin` → `parsePayload` → `loadConfig` → `renderStatusLine` → stdout (CRLF on Windows).
 
-**Config is executable JS.** `loadConfig` dynamically `import()`s the user's `config.mjs` and shallow-merges its default export over `DEFAULTS` ([src/core/config.js](src/core/config.js)). An exported array is treated as `{ segments }`. On an import error it prints to stderr and falls back to the defaults.
+- **`src/core/data.js`**: the only place that knows the payload shape (`getModel`, `getContext`, `getQuota`, `getBranch`, …). Quota is always shown as *used* %.
+- **`src/core/segments.js`**: built-in segments `{ priority, render(payload) }` (higher priority = kept longer when narrow), `ALIASES` for 1.x names, and top-level payload keys or dotted paths as segments.
+- **`src/core/renderer.js`**: runs all segments concurrently with timeouts. A throw or timeout shows as `[name: …]` inline. Config warnings become a trailing `⚠` segment. It drops the lowest priority until the line fits `terminal_width - 2`, then truncates. A `'\n'` separator means multi-line: truncate lines, don't drop. `NO_COLOR` strips all ANSI. Custom segments receive `utils` (`makeUtils`): colors, format, data, displayWidth, truncate, width.
+- **`src/core/width.js`**: terminal column width (emoji/CJK = 2, combining = 0) with a hand-rolled grapheme clusterer. Deliberately not `Intl.Segmenter`, which costs ~10 ms per process. Similarly `format.js` avoids `Intl.DateTimeFormat`. Startup cost matters because agy spawns a process per refresh (render ≈ bare node + 20 ms).
+- **`src/core/config.js`**: `config.mjs` is `{ theme, ...overrides }`. The theme is loaded by name from `themes/`, and user keys override it. Old configs with copied theme code (`{ separator, segments }`) still work. Mistakes become `warnings`, never silent fallbacks.
+- **`themes/*.js`**: `export default { separator, segments }`, using only built-in names and the `utils` argument (no imports), so users can copy one into their config.
+- **`src/cli/`**: `install`/`uninstall` (writes agy's `settings.json`, saves the previous `statusLine` in `<configDir>/previous-statusline.json`), and `theme`/`themes`/`preview`.
 
-**Segments** ([src/core/renderer.js](src/core/renderer.js)): each entry in `config.segments` is one of three kinds:
-1. A built-in name that is a key in `SEGMENT_MAP`. Most delegate to `src/features/<area>/*.js` renderers of the form `(payload, utils) => string`. The small ones are inlined in the map.
-2. A function `(payload, utils) => string | Promise<string>`. `utils` is `{ colors, formatNumber }`. A thrown error renders as a red `[Error: …]` instead of crashing.
-3. Any other string, treated as a dotted payload path (e.g. `"context_window.used_percentage"`) with proto-pollution keys blocked.
+Adding a built-in segment: add it to `SEGMENTS` with a priority, read the payload through `data.js`, and add a row to the table in `themes/README.md`. `tests/core/segments.test.js` renders every built-in against every fixture.
 
-Empty results are dropped. Every segment gets `\x1b[0m` appended to stop color bleed. Width fitting: the renderer measures visible width (ANSI stripped, code points counted, max line for multi-line segments) against `payload.terminal_width - 2`. It drops segments in `HIDE_PRIORITY` order first, then from the end. `terminal_width: 0` means unlimited.
+## Gotchas
 
-**Adding a built-in segment**: add a renderer under `src/features/`, register it in `SEGMENT_MAP`, and consider adding it to `HIDE_PRIORITY`. Also add it to the "Available Built-in Segments" list in [themes/README.md](themes/README.md).
-
-**Themes** ([themes/](themes/)): built-in themes are plain `export default { separator, segments }` `.js` files, and several are entirely one big custom-function segment (e.g. `dashboard.js`). `--load-theme` copies the file's text into the user's `config.mjs`, so **themes must be self-contained and must not import from `src/`**. They can only use the `utils` argument. User-saved themes live in `~/.config/agy-statusline/themes/*.mjs` and take precedence over built-ins with the same name. Theme names must match `^[a-z0-9-]+$`. Config writes go through `atomicWriteSync` ([src/core/utils.js](src/core/utils.js)), which retries the rename on EBUSY/EPERM for Windows.
-
-**Colors** ([src/core/colors.js](src/core/colors.js)): 24-bit truecolor wrappers that respect `NO_COLOR`. Use `colors.stripAnsi` for width math.
-
-**Git branch** ([src/features/git/cwd-branch.js](src/features/git/cwd-branch.js)): it reads `.git/HEAD` directly, walking up directories and following `gitdir:` files for worktrees and submodules. It never shells out to `git`. Results are cached per start dir.
-
-## Payload
-
-The real payload shape as captured from agy is documented in `payload_verification.md` (gitignored, local only). Key fields are `model.display_name`, `version`, `git.{branch,cwd}`/`workspace.*`, `context_window.{total_input_tokens,total_output_tokens,context_window_size,used_percentage}`, `quota.{gemini-5h,gemini-weekly,3p-5h,3p-weekly}.{remaining_fraction,reset_time,reset_in_seconds}`, `terminal_width`, `agent_state`, `plan_tier`, `email`, `session_id`, `sandbox.enabled`, `tool_confirmation_pending` and `exceeds_200k_tokens`. `dummy.json` is a sample payload.
-
-## Screenshots
-
-The `docs/theme_*.png` images are generated by `screenshot.js` (gitignored). It uses puppeteer and ansi-to-html, which are in `node_modules` but not in `package.json`. **It overwrites and then deletes `~/.config/agy-statusline/config.mjs`**, and it contains a hardcoded absolute repo path. Regenerate the screenshots whenever a theme's output changes.
+- When writing files through tools, `\uXXXX` escapes in tool input may be decoded into literal (possibly invisible) characters. Check with `grep -P '[^\x00-\x7F]'`, and write escapes via a placeholder + `sed` if needed.
+- `scripts/capture-payload.mjs` records real agy payloads (point agy's `statusLine` at it; output goes to the gitignored `scripts/captures/`). Use it to refresh fixtures and the contract doc after agy updates, since agy updates itself silently.
