@@ -1,3 +1,6 @@
+import { stripAnsi } from './width.js';
+export { stripAnsi };
+
 const RESET = '\x1b[0m';
 
 const wrap = (code, text) => {
@@ -5,11 +8,6 @@ const wrap = (code, text) => {
   return `${code}${text}${RESET}`;
 };
 
-const ANSI_REGEX = /\x1B\[[0-9;?]*[a-zA-Z]/g;
-export const stripAnsi = (str) => {
-  try { return typeof str === 'string' ? str.replace(ANSI_REGEX, '') : String(str).replace(ANSI_REGEX, ''); }
-  catch(e) { return ''; }
-};
 
 export default {
   dim: (text) => wrap('\x1b[2m', text),
