@@ -19,3 +19,4 @@ freeze
 freeze.tar.gz
 freeze_*/
 scripts/captures/
+src/core/run.bundle.js

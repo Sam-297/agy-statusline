@@ -3,7 +3,7 @@ import globals from 'globals';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default [
-  { ignores: ['node_modules/', 'coverage/', 'scripts/captures/'] },
+  { ignores: ['node_modules/', 'coverage/', 'scripts/captures/', 'src/core/*.bundle*.js'] },
   js.configs.recommended,
   eslintConfigPrettier,
   {

@@ -5,7 +5,10 @@ module.enableCompileCache?.(); // Node >= 22.1: caches compiled code between run
 
 const args = process.argv.slice(2);
 if (args.length === 0 && !process.stdin.isTTY) {
-  const { runRender } = await import('../src/core/run.js');
+  // Published packages ship a one-file bundle of the render path (scripts/build.mjs).
+  const { runRender } = await import('../src/core/run.bundle.js').catch(
+    () => import('../src/core/run.js')
+  );
   await runRender();
   process.exit(0);
 } else {

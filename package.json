@@ -27,7 +27,10 @@
   "scripts": {
     "test": "node --test",
     "lint": "eslint .",
-    "screenshots": "node scripts/screenshots.mjs"
+    "screenshots": "node scripts/screenshots.mjs",
+    "build": "node scripts/build.mjs",
+    "prepack": "node scripts/build.mjs",
+    "postpack": "node scripts/build.mjs --clean"
   },
   "publishConfig": {
     "access": "public"
@@ -37,6 +40,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "ansi-to-html": "^0.7.2",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.12.0",

@@ -43,7 +43,12 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: 22.x
-    - run: npm install -g .
+    - run: npm ci
+      env:
+        PUPPETEER_SKIP_DOWNLOAD: 'true'
+    - name: Install the packed tarball (includes the one-file render bundle)
+      shell: bash
+      run: npm pack && npm install -g ./sam-297-agy-statusline-*.tgz
     - name: Render through the npm shim
       shell: cmd
       run: |
