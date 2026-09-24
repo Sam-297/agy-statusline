@@ -8,7 +8,6 @@ const wrap = (code, text) => {
   return `${code}${text}${RESET}`;
 };
 
-
 export default {
   dim: (text) => wrap('\x1b[2m', text),
   blue: (text) => wrap('\x1b[38;2;0;153;255m', text),
