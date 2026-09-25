@@ -31,7 +31,7 @@ try {
     await tab.setContent(page(convert.toHtml(out.replace(/\x1b\[2m/g, '\x1b[90m'))), {
       waitUntil: 'networkidle0',
     });
-    await tab.evaluate(() => document.fonts.ready);
+    await tab.evaluate(() => document.fonts.ready); // eslint-disable-line no-undef -- runs in the browser
     const box = await (await tab.$('.t')).boundingBox();
     await tab.setViewport({
       width: Math.ceil(box.width) + 40,

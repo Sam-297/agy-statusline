@@ -1,23 +1,17 @@
 node_modules/
+coverage/
 .DS_Store
 *.log
-coverage/
 
-# AI Agent custom rules & docs
+# AI tool configs and local notes
 .agents/
-ARCHITECTURE.md
-progress.md
-build_plan.md
-payload_verification.md
+.superpowers/
+.claude/settings.local.json
 docs/superpowers/
 
-# Temp screenshot files
-*.ans
-dummy.json
-screenshot.js
-freeze
-freeze.tar.gz
-freeze_*/
-scripts/captures/
+# Build and release outputs
 src/core/run.bundle.js
 *.tgz
+
+# Local agy payload captures (scripts/capture-payload.mjs)
+scripts/captures/
