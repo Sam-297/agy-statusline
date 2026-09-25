@@ -95,7 +95,7 @@ test('windows: path without spaces → node <path> directly (skips the ~20 ms np
     scriptPath,
     nodePath: 'C:\\node.exe',
   });
-  assert.deepStrictEqual(res, { command: `node ${scriptPath}` });
+  assert.deepStrictEqual(res, { command: `node ${scriptPath.replaceAll('\\', '/')}` });
 });
 
 test('windows: path with spaces → bare command through our npm shim on PATH', () => {
@@ -144,8 +144,11 @@ test('findOnPath honours PATHEXT on windows and plain names elsewhere', () => {
     findOnPath('tool', { PATH: root, PATHEXT: '.CMD' }, 'win32'),
     path.join(root, 'tool.cmd')
   );
-  assert.strictEqual(findOnPath('tool', { PATH: root }, 'linux'), path.join(root, 'tool'));
-  assert.strictEqual(findOnPath('nope', { PATH: root }, 'linux'), null);
+  // Simulating Linux PATH (':'-separated) only makes sense on a host without drive letters.
+  if (process.platform !== 'win32') {
+    assert.strictEqual(findOnPath('tool', { PATH: root }, 'linux'), path.join(root, 'tool'));
+    assert.strictEqual(findOnPath('nope', { PATH: root }, 'linux'), null);
+  }
 });
 
 test('install writes statusLine, keeps other settings, saves the previous statusLine, creates config', () => {
