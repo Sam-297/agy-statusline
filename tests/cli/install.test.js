@@ -120,7 +120,7 @@ test("windows: someone else's agy-statusline on PATH is not used", () => {
     scriptPath: 'C:\\src\\agy\\bin\\agy-statusline',
     nodePath: 'C:\\node.exe',
   });
-  assert.deepStrictEqual(res, { command: 'node C:\\src\\agy\\bin\\agy-statusline' });
+  assert.deepStrictEqual(res, { command: 'node C:/src/agy/bin/agy-statusline' });
 });
 
 test('windows: path with spaces and no shim → explains how to install from the release', () => {
@@ -270,3 +270,21 @@ for (const content of ['[]', 'null', '"x"', '42']) {
     assert.match(logs.join('\n'), /JSON object/);
   });
 }
+
+test('windows: node <path> uses forward slashes, so it survives sh -c (Git Bash) and plain splitting', () => {
+  const { command } = chooseCommand({
+    env: { Path: '' },
+    platform: 'win32',
+    scriptPath:
+      'C:\\Users\\sam\\AppData\\Roaming\\npm\\node_modules\\@sam-297\\agy-statusline\\bin\\agy-statusline',
+    nodePath: 'C:\\node.exe',
+  });
+  assert.strictEqual(
+    command,
+    'node C:/Users/sam/AppData/Roaming/npm/node_modules/@sam-297/agy-statusline/bin/agy-statusline'
+  );
+  if (process.platform !== 'win32') {
+    const argv = execFileSync('sh', ['-c', `printf '%s\\n' ${command}`], { encoding: 'utf8' });
+    assert.strictEqual(argv.trim().split('\n')[1], command.slice('node '.length));
+  }
+});

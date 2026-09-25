@@ -28,7 +28,7 @@ Tests are hermetic: they use temp `XDG_CONFIG_HOME` / `HOME`. Keep it that way; 
 ## Hard rules (from observed agy behavior)
 
 - **Render mode always exits 0 and finishes well under 4 s.** Any non-zero exit or timeout makes agy print a `⚠ Statusline Error` block into the user's chat. `src/core/run.js` enforces a 3 s hard deadline; each segment gets 300 ms (`SEGMENT_TIMEOUT_MS`).
-- **Windows agy splits the command on whitespace and keeps quotes literally.** `install` registers `node <path>` when the path has no spaces (fastest), else the bare `agy-statusline` npm shim. Never quote. Linux runs it via `sh -c`, so quoted absolute paths are fine there. See `chooseCommand` in `src/cli/install.js`.
+- **Windows agy splits the command on whitespace and keeps quotes literally.** `install` registers `node <path>` with forward slashes when the path has only plain characters (fastest; backslashes would break under Git Bash's `sh`), else the bare `agy-statusline` npm shim. Never quote. Linux runs it via `sh -c`, so quoted absolute paths are fine there. See `chooseCommand` in `src/cli/install.js`.
 - **agy sends no git branch** (only `vcs.type`), so `data.readGitBranch` reads `.git/HEAD` from disk (worktrees supported, no `git` spawn).
 - stdout is a pipe, not a TTY, and agy sets no `COLUMNS`: use `payload.terminal_width`.
 - Don't show `email` / `session_id` by default.

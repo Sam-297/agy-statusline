@@ -93,8 +93,11 @@ const PLAIN_WINDOWS_PATH = /^[A-Za-z0-9_.:\\/@~+-]+$/;
 
 export function chooseCommand({ env, platform, scriptPath, nodePath }) {
   if (platform !== 'win32') return { command: `${shQuote(nodePath)} ${shQuote(scriptPath)}` };
-  // Fastest: node directly (npm's .cmd shim adds ~20 ms per render).
-  if (PLAIN_WINDOWS_PATH.test(scriptPath)) return { command: `node ${scriptPath}` };
+  // Fastest: node directly (npm's .cmd shim adds ~20 ms per render). Forward slashes: Node
+  // accepts them, and agy may run the command through Git Bash's sh, where \ is an escape.
+  if (PLAIN_WINDOWS_PATH.test(scriptPath)) {
+    return { command: `node ${scriptPath.replaceAll('\\', '/')}` };
+  }
   const found = findOnPath(BIN_NAME, env, platform);
   if (found && isOurWindowsShim(found, scriptPath)) return { command: BIN_NAME };
   return {
