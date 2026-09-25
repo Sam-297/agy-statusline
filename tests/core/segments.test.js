@@ -65,3 +65,7 @@ test('aliases and payload paths resolve; typos do not', () => {
   assert.strictEqual(isKnownSegment('artifact_count'), false);
   assert.strictEqual(isKnownSegment('__proto__.x'), false);
 });
+
+test('email_masked copes with an empty local part', () => {
+  assert.strictEqual(plain('email_masked', { email: '@example.com' }), '***@example.com');
+});

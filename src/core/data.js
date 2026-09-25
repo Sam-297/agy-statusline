@@ -57,7 +57,8 @@ export function readGitBranch(startDir) {
       const head = readSmall(path.join(gitDir, 'HEAD'), 256);
       if (!head) return null;
       const ref = /^ref:\s*refs\/heads\/(.+)$/m.exec(head);
-      if (ref) return ref[1].trim();
+      // Reftable repos keep the real HEAD elsewhere and point this one at '.invalid'.
+      if (ref) return ref[1].trim() === '.invalid' ? null : ref[1].trim();
       return /^[0-9a-f]{7,}/i.test(head) ? head.slice(0, 7) : null;
     }
     const parent = path.dirname(dir);

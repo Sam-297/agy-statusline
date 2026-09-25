@@ -1,7 +1,7 @@
 // Terminal display width. Emoji and East Asian wide characters take 2 columns,
 // combining marks take 0, ANSI escape sequences take none.
 const ANSI_REGEX = /\x1B\[[0-9;?]*[ -/]*[@-~]|\x1B\][^\x07\x1B]*(?:\x07|\x1B\\)/g;
-const ANSI_SPLIT = /(\x1B\[[0-9;?]*[ -/]*[@-~])/;
+const ANSI_SPLIT = /(\x1B\[[0-9;?]*[ -/]*[@-~]|\x1B\][^\x07\x1B]*(?:\x07|\x1B\\))/;
 
 // Minimal grapheme clustering (combining marks, ZWJ sequences, variation selectors,
 // skin tones, flag pairs). Intl.Segmenter would do this too but costs ~10 ms per process.
@@ -62,14 +62,16 @@ export function truncate(str, width) {
   if (displayWidth(str) <= width) return str;
   let out = '';
   let used = 0;
+  let linkOpen = false; // OSC 8 hyperlink started but not yet closed
   for (const part of String(str).split(ANSI_SPLIT)) {
-    if (part.startsWith('\x1B[')) {
+    if (part.startsWith('\x1B')) {
+      if (part.startsWith('\x1B]8;')) linkOpen = !/^\x1B\]8;[^;]*;(?:\x07|\x1B\\)$/.test(part);
       out += part;
       continue;
     }
     for (const grapheme of graphemes(part)) {
       const w = graphemeWidth(grapheme);
-      if (used + w > width - 1) return `${out}…\x1B[0m`;
+      if (used + w > width - 1) return `${out}…\x1B[0m${linkOpen ? '\x1B]8;;\x07' : ''}`;
       out += grapheme;
       used += w;
     }

@@ -131,3 +131,9 @@ test('config warnings survive narrow terminals (they outrank every segment)', as
   );
   assert.match(out, /⚠ unknown theme "defualt"/, out);
 });
+
+test('two aliases of the same built-in render it once (1.x quota_anthropic + quota_openai)', async () => {
+  const p = { quota: { '3p-5h': { remaining_fraction: 0.5 } } };
+  const out = await render(p, { separator: ' | ', segments: ['quota_anthropic', 'quota_openai'] });
+  assert.strictEqual(out, '3P·5h 50%');
+});

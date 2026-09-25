@@ -60,7 +60,7 @@ export const SEGMENTS = {
     const email = str(p?.email);
     if (!email || !email.includes('@')) return '';
     const [user, domain] = email.split('@');
-    return colors.dim(`${user[0]}***@${domain}`);
+    return colors.dim(`${user ? user[0] : ''}***@${domain}`);
   }),
   email: def(2, (p) => (str(p?.email) ? colors.dim(p.email) : '')),
   version: def(1, (p) => (str(p?.version) ? colors.orange(`v${p.version}`) : '')),

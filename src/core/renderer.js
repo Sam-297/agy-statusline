@@ -33,7 +33,7 @@ export function makeUtils(maxWidth) {
 function toItem(segment, index) {
   if (typeof segment === 'string') {
     const builtin = resolveSegment(segment);
-    return builtin && { ...builtin, index };
+    return builtin && { ...builtin, index, builtin: true };
   }
   if (typeof segment === 'function') {
     return { name: segment.name || 'custom', priority: CUSTOM_PRIORITY, render: segment, index };
@@ -83,7 +83,10 @@ export async function renderStatusLine(
   const utils = makeUtils(maxWidth);
   const separator = typeof config.separator === 'string' ? config.separator : colors.dim(' | ');
 
-  const items = (Array.isArray(config.segments) ? config.segments : []).map(toItem).filter(Boolean);
+  const seen = new Set(); // aliases can name one built-in twice (1.x quota_anthropic + quota_openai)
+  const items = (Array.isArray(config.segments) ? config.segments : [])
+    .map(toItem)
+    .filter((item) => item && (!item.builtin || (!seen.has(item.name) && seen.add(item.name))));
   const texts = await Promise.all(items.map((item) => runSegment(item, payload, utils, timeoutMs)));
   const rendered = items
     .map((item, i) => ({ ...item, text: texts[i] }))

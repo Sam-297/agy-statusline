@@ -50,3 +50,10 @@ test('truncate keeps ANSI codes and never splits a wide char', () => {
 test('truncate to 0 or less returns empty', () => {
   assert.strictEqual(truncate('abc', 0), '');
 });
+
+test('truncate never cuts an OSC 8 hyperlink sequence in half', () => {
+  const link = '\x1b]8;;https://example.com/a/very/long/url\x07click here please\x1b]8;;\x07';
+  const out = truncate(link, 10);
+  assert.strictEqual(stripAnsi(out), 'click her…');
+  assert.ok(out.startsWith('\x1b]8;;https://example.com/a/very/long/url\x07'), JSON.stringify(out));
+});

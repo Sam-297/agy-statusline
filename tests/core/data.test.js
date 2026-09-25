@@ -99,3 +99,8 @@ test('getCwdName: ~ for home, basename otherwise, for / and \\ paths', () => {
   assert.strictEqual(getCwdName({ cwd: 'C:\\Users\\user\\code\\app' }), 'app');
   assert.strictEqual(getCwdName({ cwd: '/' }), '/');
 });
+
+test('readGitBranch: reftable repos (HEAD points at .invalid) show no branch rather than a wrong one', () => {
+  const repo = tmpRepo({ '.git/HEAD': 'ref: refs/heads/.invalid\n' });
+  assert.strictEqual(readGitBranch(repo), null);
+});
