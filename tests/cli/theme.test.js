@@ -62,7 +62,9 @@ test('printThemes lists all themes', () => {
     'dashboard',
     'default',
     'elegant',
+    'powerline',
     'progress-bar',
+    'quota',
     'retro',
   ]);
 });

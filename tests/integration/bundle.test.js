@@ -22,7 +22,10 @@ test('the published one-file bundle renders exactly like the sources', async (t)
     const configPath = path.join(dir, `${theme}.mjs`);
     fs.writeFileSync(configPath, `export default { theme: '${theme}' };`);
     for (const name of FIXTURES) {
-      const input = fs.readFileSync(path.join(root, 'tests/fixtures/payloads', `${name}.json`), 'utf8');
+      const input = fs.readFileSync(
+        path.join(root, 'tests/fixtures/payloads', `${name}.json`),
+        'utf8'
+      );
       const opts = { configPath, env: {}, platform: 'linux' };
       assert.strictEqual(
         await bundle.renderFromInput(input, opts),

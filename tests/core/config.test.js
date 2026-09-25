@@ -17,13 +17,15 @@ function writeConfig(source) {
   return file;
 }
 
-test('listThemes lists the six built-ins', () => {
+test('listThemes lists the built-ins', () => {
   assert.deepStrictEqual(listThemes(), [
     'cyberpunk',
     'dashboard',
     'default',
     'elegant',
+    'powerline',
     'progress-bar',
+    'quota',
     'retro',
   ]);
 });
