@@ -1,5 +1,6 @@
 // Everything that knows the agy payload shape lives here. See docs/agy-contract.md.
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 export function getModel(payload) {
@@ -10,6 +11,20 @@ export function getModel(payload) {
 export function getCwd(payload) {
   const cwd = payload?.workspace?.current_dir || payload?.cwd;
   return typeof cwd === 'string' && cwd ? cwd : process.cwd();
+}
+
+// Folder name for display: '~' for the home directory, else the last path component.
+export function getCwdName(payload) {
+  const cwd = getCwd(payload);
+  const norm = (p) =>
+    p
+      .replace(/^[a-zA-Z]:/, '')
+      .replace(/\\/g, '/')
+      .replace(/\/+$/, '')
+      .toLowerCase();
+  const home = os.homedir();
+  if (home && norm(cwd) === norm(home)) return '~';
+  return cwd.split(/[\\/]/).filter(Boolean).pop() || cwd;
 }
 
 function readSmall(file, max) {

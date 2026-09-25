@@ -6,6 +6,7 @@ import path from 'node:path';
 import {
   getModel,
   getCwd,
+  getCwdName,
   readGitBranch,
   getBranch,
   getContext,
@@ -90,4 +91,11 @@ test('getBranch: legacy git.branch, non-git vcs, filesystem', () => {
   assert.strictEqual(getBranch({ vcs: { type: 'hg' }, cwd: process.cwd() }), null);
   const repo = tmpRepo({ '.git/HEAD': 'ref: refs/heads/main\n' });
   assert.strictEqual(getBranch({ vcs: { type: 'git' }, cwd: repo }), 'main');
+});
+
+test('getCwdName: ~ for home, basename otherwise, for / and \\ paths', () => {
+  assert.strictEqual(getCwdName({ cwd: os.homedir() }), '~');
+  assert.strictEqual(getCwdName({ cwd: '/home/user/projects/demo/' }), 'demo');
+  assert.strictEqual(getCwdName({ cwd: 'C:\\Users\\user\\code\\app' }), 'app');
+  assert.strictEqual(getCwdName({ cwd: '/' }), '/');
 });

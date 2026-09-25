@@ -1,20 +1,6 @@
-import os from 'node:os';
 import colors from './colors.js';
-import { getModel, getBranch, getCwd, getContext, getQuota } from './data.js';
+import { getModel, getBranch, getCwdName, getContext, getQuota } from './data.js';
 import { formatNumber, pctColor, bar, formatTime, formatDayTime } from './format.js';
-
-function cwdName(payload) {
-  const cwd = getCwd(payload);
-  const norm = (p) =>
-    p
-      .replace(/^[a-zA-Z]:/, '')
-      .replace(/\\/g, '/')
-      .replace(/\/+$/, '')
-      .toLowerCase();
-  const home = os.homedir();
-  if (home && norm(cwd) === norm(home)) return '~';
-  return cwd.split(/[\\/]/).filter(Boolean).pop() || cwd;
-}
 
 function quota(payload, provider, label, labelColor) {
   const q = getQuota(payload, provider);
@@ -50,10 +36,10 @@ export const SEGMENTS = {
   quota_3p: def(7, (p) => quota(p, '3p', '3P', colors.claudeOrange)),
   cwd_branch: def(6, (p) => {
     const branch = getBranch(p);
-    const cwd = colors.cyan(cwdName(p));
+    const cwd = colors.cyan(getCwdName(p));
     return branch ? `${cwd}${colors.dim('@')}${colors.green(branch)}` : cwd;
   }),
-  cwd: def(5, (p) => colors.cyan(cwdName(p))),
+  cwd: def(5, (p) => colors.cyan(getCwdName(p))),
   branch: def(5, (p) => (getBranch(p) ? colors.green(getBranch(p)) : '')),
   agent_state: def(4, (p) => (str(p?.agent_state) ? colors.purple(p.agent_state) : '')),
   exceeds_200k: def(4, (p) => (p?.exceeds_200k_tokens === true ? colors.red('⚠ >200k') : '')),
