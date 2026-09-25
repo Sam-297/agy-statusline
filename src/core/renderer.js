@@ -6,7 +6,8 @@ import { displayWidth, stripAnsi, truncate } from './width.js';
 
 export const SEGMENT_TIMEOUT_MS = 300;
 const CUSTOM_PRIORITY = 5;
-const WARNING_PRIORITY = 7;
+// Above every built-in (max 10): a broken config must stay visible; the line truncates instead.
+const WARNING_PRIORITY = 100;
 const RESET = '\x1b[0m';
 const TIMEOUT = Symbol('timeout');
 

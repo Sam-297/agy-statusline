@@ -119,3 +119,15 @@ test('custom segments receive utils with data helpers and width', async () => {
   );
   assert.strictEqual(out, 'Claude Opus 4.6 (Thinking)|98|1.5k|function');
 });
+
+test('config warnings survive narrow terminals (they outrank every segment)', async () => {
+  const out = await render(
+    { ...active, terminal_width: 100 },
+    {
+      separator: ' | ',
+      segments: ['model', 'cwd_branch', 'context', 'quota_gemini', 'quota_3p', 'version'],
+      warnings: ['unknown theme "defualt"'],
+    }
+  );
+  assert.match(out, /⚠ unknown theme "defualt"/, out);
+});
