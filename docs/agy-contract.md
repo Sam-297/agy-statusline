@@ -28,7 +28,7 @@ If you change behavior based on this doc, re-verify it first: agy updates itself
 | stdout | a pipe (`isTTY` false) | a pipe |
 | env | inherited. agy does **not** set `NO_COLOR`, `COLUMNS` or `FORCE_COLOR` | inherited |
 
-Windows with an `sh` on PATH (Git Bash etc.) likely goes through `sh -c` like Linux. The competitor agy-hud even installs an `sh.cmd` shim for this. This was not verified here. **Design rule:** the command we register must be `node <absolute path, forward slashes, no spaces>` or a single bare token resolved on PATH (our npm shim), never quoted. Forward slashes, because under `sh -c` an unquoted `\` is an escape character. Both forms work under every Windows variant. See `chooseCommand` in `src/cli/install.js`.
+Windows with an `sh` on PATH (Git Bash etc.) likely goes through `sh -c` like Linux. The competitor agy-hud even installs an `sh.cmd` shim for this. Verified on 2026-09-25 (agy 1.2.11, Git's `usr\bin` on PATH): the registered `node C:/…` command renders in real agy with no errors. Under Git's `sh -c`, the old backslash form crashes Node with a module-not-found error. **Design rule:** the command we register must be `node <absolute path, forward slashes, no spaces>` or a single bare token resolved on PATH (our npm shim), never quoted. Forward slashes, because under `sh -c` an unquoted `\` is an escape character. Both forms work under every Windows variant. See `chooseCommand` in `src/cli/install.js`.
 
 ## Timing & failure
 
