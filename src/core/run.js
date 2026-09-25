@@ -51,6 +51,12 @@ export async function renderFromInput(
 export async function runRender({ stdin = process.stdin, stdout = process.stdout } = {}) {
   setTimeout(() => process.exit(0), HARD_DEADLINE_MS);
   stdout.on('error', () => process.exit(0)); // EPIPE: agy went away
+  // A custom segment can throw from a timer or leave a rejected promise behind, outside the
+  // renderer's try/catch. Node would exit 1 and agy would print an error into the chat; that
+  // segment already shows as [name: timeout], so ignore the stray error.
+  process.on('uncaughtException', () => {});
+  process.on('unhandledRejection', () => {});
   const output = await renderFromInput(await readStdin(stdin));
-  await new Promise((resolve) => stdout.write(output + '\n', resolve)); // pipes are async on Windows
+  const eol = process.platform === 'win32' ? '\r\n' : '\n';
+  await new Promise((resolve) => stdout.write(output + eol, resolve)); // pipes are async on Windows
 }

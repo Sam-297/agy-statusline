@@ -92,3 +92,23 @@ test('install via the CLI writes into $HOME/.gemini', () => {
   );
   assert.strictEqual(settings.statusLine.type, 'command');
 });
+
+test('render mode: an error thrown later inside a segment callback still exits 0', () => {
+  const r = run([], {
+    input: fixtureText,
+    config:
+      "export default { segments: ['model', () => new Promise(() => setTimeout(() => { JSON.parse('x'); }, 20))] };",
+  });
+  assert.strictEqual(r.status, 0, r.stderr);
+  assert.match(r.stdout, /Claude Opus 4\.6/);
+});
+
+test('render mode: an unhandled promise rejection in a segment still exits 0', () => {
+  const r = run([], {
+    input: fixtureText,
+    config:
+      "export default { segments: ['model', () => { Promise.reject(new Error('bg')); return 'ok'; }] };",
+  });
+  assert.strictEqual(r.status, 0, r.stderr);
+  assert.match(r.stdout, /Claude Opus 4\.6.*ok/);
+});
