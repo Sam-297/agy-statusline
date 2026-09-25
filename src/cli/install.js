@@ -26,10 +26,25 @@ function readState(configDir) {
   }
 }
 
-function isOurs(statusLine, state) {
+// Ours = what we registered last time, what we would register now (covers a lost state
+// file), or the 1.x hook.
+function isOurs(statusLine, knownCommands) {
   const command = statusLine?.command;
   if (typeof command !== 'string') return false;
-  return command === state?.registered || V1_HOOK.test(command);
+  return knownCommands.includes(command) || V1_HOOK.test(command);
+}
+
+function readSettings(settingsPath) {
+  let settings;
+  try {
+    settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+  } catch (e) {
+    return { error: `Could not parse ${settingsPath} (${e.message}).` };
+  }
+  if (typeof settings !== 'object' || settings === null || Array.isArray(settings)) {
+    return { error: `${settingsPath} must contain a JSON object; leaving it alone.` };
+  }
+  return { settings };
 }
 
 function realpath(p) {
@@ -99,22 +114,21 @@ export function install({ home, env, platform, configDir, scriptPath, nodePath, 
   const settingsPath = agySettingsPath(home);
   let settings = {};
   if (fs.existsSync(settingsPath)) {
-    try {
-      settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-    } catch (e) {
+    const read = readSettings(settingsPath);
+    if (read.error) {
       err(
-        `Could not parse ${settingsPath} (${e.message}).\n` +
-          `Fix it, or add this yourself:\n  "statusLine": ${JSON.stringify(statusLine)}`
+        `${read.error}\nFix it, or add this yourself:\n  "statusLine": ${JSON.stringify(statusLine)}`
       );
       return 1;
     }
+    settings = read.settings;
   } else {
     fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
   }
 
   fs.mkdirSync(configDir, { recursive: true });
   const state = readState(configDir);
-  const previous = isOurs(settings.statusLine, state)
+  const previous = isOurs(settings.statusLine, [state?.registered, choice.command])
     ? (state?.statusLine ?? null)
     : (settings.statusLine ?? null);
   atomicWriteSync(
@@ -135,17 +149,21 @@ export function install({ home, env, platform, configDir, scriptPath, nodePath, 
   return 0;
 }
 
-export function uninstall({ home, configDir, out, err }) {
+export function uninstall({ home, env, platform, configDir, scriptPath, nodePath, out, err }) {
   const settingsPath = agySettingsPath(home);
-  let settings;
-  try {
-    settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-  } catch {
+  if (!fs.existsSync(settingsPath)) {
     err(`Can't read ${settingsPath}; nothing changed.`);
     return 1;
   }
+  const read = readSettings(settingsPath);
+  if (read.error) {
+    err(`${read.error} Nothing changed.`);
+    return 1;
+  }
+  const { settings } = read;
   const state = readState(configDir);
-  if (!isOurs(settings.statusLine, state)) {
+  const current = chooseCommand({ env, platform, scriptPath, nodePath }).command;
+  if (!isOurs(settings.statusLine, [state?.registered, current])) {
     out('agy-statusline is not the active status line; nothing changed.');
     return 0;
   }

@@ -241,3 +241,32 @@ test('the v1 hook command counts as ours (upgrade path), so it is not "restored"
   assert.strictEqual(uninstall(ctx), 0);
   assert.strictEqual(readSettings(ctx).statusLine, undefined);
 });
+
+test('losing the state file never makes our own command the "previous" one', () => {
+  const { ctx: make } = sandbox();
+  const ctx = make();
+  assert.strictEqual(install(ctx), 0);
+  fs.rmSync(ctx.configDir, { recursive: true, force: true }); // state file lost
+  assert.strictEqual(uninstall(ctx), 0); // still recognises its own command
+  assert.strictEqual(readSettings(ctx).statusLine, undefined);
+
+  assert.strictEqual(install(ctx), 0);
+  fs.rmSync(ctx.configDir, { recursive: true, force: true });
+  assert.strictEqual(install(ctx), 0); // reinstall without state
+  assert.strictEqual(uninstall(ctx), 0);
+  assert.strictEqual(readSettings(ctx).statusLine, undefined);
+});
+
+for (const content of ['[]', 'null', '"x"', '42']) {
+  test(`install/uninstall refuse a settings.json that is ${content}, without touching anything`, () => {
+    const { ctx: make, logs } = sandbox();
+    const ctx = make();
+    fs.mkdirSync(path.dirname(agySettingsPath(ctx.home)), { recursive: true });
+    fs.writeFileSync(agySettingsPath(ctx.home), content);
+    assert.strictEqual(install(ctx), 1);
+    assert.strictEqual(uninstall(ctx), 1);
+    assert.strictEqual(fs.readFileSync(agySettingsPath(ctx.home), 'utf8'), content);
+    assert.ok(!fs.existsSync(ctx.configDir), 'no state or config written');
+    assert.match(logs.join('\n'), /JSON object/);
+  });
+}
