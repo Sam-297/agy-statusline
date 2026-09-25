@@ -27,9 +27,24 @@ process.stdin.setEncoding('utf8');
 process.stdin.on('data', (c) => (input += c));
 process.stdin.on('end', () => {
   const stdinMs = Number(process.hrtime.bigint() - started) / 1e6;
-  const envKeys = ['TERM', 'COLUMNS', 'LINES', 'NO_COLOR', 'FORCE_COLOR', 'COLORTERM',
-    'WT_SESSION', 'TERM_PROGRAM', 'NODE_OPTIONS', 'LANG', 'SHELL', 'ComSpec', 'PSModulePath'];
-  const env = Object.fromEntries(envKeys.filter((k) => k in process.env).map((k) => [k, process.env[k]]));
+  const envKeys = [
+    'TERM',
+    'COLUMNS',
+    'LINES',
+    'NO_COLOR',
+    'FORCE_COLOR',
+    'COLORTERM',
+    'WT_SESSION',
+    'TERM_PROGRAM',
+    'NODE_OPTIONS',
+    'LANG',
+    'SHELL',
+    'ComSpec',
+    'PSModulePath',
+  ];
+  const env = Object.fromEntries(
+    envKeys.filter((k) => k in process.env).map((k) => [k, process.env[k]])
+  );
 
   let payload;
   try {
