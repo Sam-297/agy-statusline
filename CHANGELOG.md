@@ -36,4 +36,6 @@ A rebuild based on how agy 1.2.x actually behaves, measured on Linux and native 
 ### Security
 
 - The registered command can no longer be interpreted by `sh` if the install path contains `$(…)` or backticks.
-- `uninstall` only removes the exact command that `install` registered.
+- `uninstall` only removes the exact command that `install` registered, even if its state file was lost.
+- Writing agy's `settings.json` follows symlinks (dotfile managers) and keeps the file's permissions. A `settings.json` that isn't a JSON object is refused instead of being overwritten.
+- `agy-statusline theme` only edits a real `theme:` line and checks the result; otherwise it backs up your config and writes a fresh one.
