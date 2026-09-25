@@ -14,9 +14,17 @@ function syncSleep(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
-export function atomicWriteSync(filePath, content) {
+export function atomicWriteSync(target, content) {
+  // Write through symlinks (dotfile managers) and keep the existing permissions.
+  let filePath = target;
+  let mode;
+  try {
+    filePath = fs.realpathSync(target);
+    mode = fs.statSync(filePath).mode & 0o777;
+  } catch {}
   const tmpPath = filePath + '.tmp.' + process.pid + '.' + Math.random().toString(36).slice(2);
-  fs.writeFileSync(tmpPath, content, 'utf8');
+  fs.writeFileSync(tmpPath, content, { encoding: 'utf8', mode });
+  if (mode !== undefined) fs.chmodSync(tmpPath, mode); // writeFileSync's mode is masked by umask
   let retries = 5;
   while (retries > 0) {
     try {
