@@ -7,6 +7,9 @@ import { defaultConfigSource } from '../core/config.js';
 
 export const PACKAGE_NAME = '@sam-297/agy-statusline';
 export const BIN_NAME = 'agy-statusline';
+// Not on the npm registry: releases are GitHub Release tarballs (the latest one always has this URL).
+export const INSTALL_URL =
+  'https://github.com/Sam-297/agy-statusline/releases/latest/download/agy-statusline.tgz';
 
 export const agySettingsPath = (home) =>
   path.join(home, '.gemini', 'antigravity-cli', 'settings.json');
@@ -81,8 +84,8 @@ export function chooseCommand({ env, platform, scriptPath, nodePath }) {
   if (found && isOurWindowsShim(found, scriptPath)) return { command: BIN_NAME };
   return {
     error:
-      `agy on Windows can't run a command whose path contains spaces:\n  ${scriptPath}\n` +
-      `Install from npm instead:  npm i -g ${PACKAGE_NAME}  then run  agy-statusline install`,
+      `agy on Windows can't safely run a command whose path has spaces or special characters:\n  ${scriptPath}\n` +
+      `Install the release instead:  npm i -g ${INSTALL_URL}  then run  agy-statusline install`,
   };
 }
 

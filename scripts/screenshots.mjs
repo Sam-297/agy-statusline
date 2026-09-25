@@ -7,9 +7,13 @@ import { renderStatusLine } from '../src/core/renderer.js';
 import { SAMPLE_PAYLOAD } from '../src/core/sample-payload.js';
 
 const convert = new AnsiToHtml({ fg: '#ccc', bg: '#1e1e1e', newline: true, escapeXML: true });
+// A Nerd Font so the powerline theme's glyphs render (fetched by the headless browser).
+const NERD_FONT =
+  'https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@v3.2.1/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf';
 const page = (body) => `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+  @font-face { font-family: 'JBM Nerd'; src: url('${NERD_FONT}'); }
   body { margin: 0; padding: 20px; display: inline-block; background: transparent;
-         font: 14px/1.5 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Noto Color Emoji', monospace; }
+         font: 14px/1.5 'JBM Nerd', 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Noto Color Emoji', monospace; }
   .t { background: #1e1e1e; color: #ccc; border: 1px solid #333; border-radius: 8px;
        padding: 16px 20px; white-space: pre; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
 </style></head><body><div class="t">${body}</div></body></html>`;
@@ -24,7 +28,10 @@ try {
     );
     const tab = await browser.newPage();
     // ansi-to-html has no "dim"; map it to gray.
-    await tab.setContent(page(convert.toHtml(out.replace(/\x1b\[2m/g, '\x1b[90m'))));
+    await tab.setContent(page(convert.toHtml(out.replace(/\x1b\[2m/g, '\x1b[90m'))), {
+      waitUntil: 'networkidle0',
+    });
+    await tab.evaluate(() => document.fonts.ready);
     const box = await (await tab.$('.t')).boundingBox();
     await tab.setViewport({
       width: Math.ceil(box.width) + 40,

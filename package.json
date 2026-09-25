@@ -30,7 +30,8 @@
     "screenshots": "node scripts/screenshots.mjs",
     "build": "node scripts/build.mjs",
     "prepack": "node scripts/build.mjs",
-    "postpack": "node scripts/build.mjs --clean"
+    "postpack": "node scripts/build.mjs --clean",
+    "release:pack": "node scripts/release-pack.mjs"
   },
   "publishConfig": {
     "access": "public"

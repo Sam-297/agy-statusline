@@ -123,14 +123,17 @@ test("windows: someone else's agy-statusline on PATH is not used", () => {
   assert.deepStrictEqual(res, { command: 'node C:\\src\\agy\\bin\\agy-statusline' });
 });
 
-test('windows: path with spaces and no shim → explains npm install', () => {
+test('windows: path with spaces and no shim → explains how to install from the release', () => {
   const res = chooseCommand({
     env: { Path: '' },
     platform: 'win32',
     scriptPath: 'C:\\Users\\Jane Doe\\agy\\bin\\agy-statusline',
     nodePath: 'C:\\node.exe',
   });
-  assert.match(res.error, /npm i -g @sam-297\/agy-statusline/);
+  assert.match(
+    res.error,
+    /npm i -g https:\/\/github\.com\/Sam-297\/agy-statusline\/releases\/latest\/download\/agy-statusline\.tgz/
+  );
 });
 
 test('findOnPath honours PATHEXT on windows and plain names elsewhere', () => {

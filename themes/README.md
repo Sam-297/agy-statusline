@@ -10,14 +10,16 @@ agy-statusline theme <name>        # switch
 
 agy picks up the change on its next refresh, so there's no need to restart.
 
-| Theme          |                                                 |
-| -------------- | ----------------------------------------------- |
-| `default`      | ![default](../docs/theme_default.png)           |
-| `progress-bar` | ![progress-bar](../docs/theme_progress-bar.png) |
-| `elegant`      | ![elegant](../docs/theme_elegant.png)           |
-| `dashboard`    | ![dashboard](../docs/theme_dashboard.png)       |
-| `cyberpunk`    | ![cyberpunk](../docs/theme_cyberpunk.png)       |
-| `retro`        | ![retro](../docs/theme_retro.png)               |
+| Theme          |                                                                                             |
+| -------------- | ------------------------------------------------------------------------------------------- |
+| `default`      | ![default](../docs/theme_default.png)                                                       |
+| `progress-bar` | ![progress-bar](../docs/theme_progress-bar.png)                                             |
+| `elegant`      | ![elegant](../docs/theme_elegant.png)                                                       |
+| `quota`        | ![quota](../docs/theme_quota.png)                                                           |
+| `powerline`    | ![powerline](../docs/theme_powerline.png) (needs a [Nerd Font](https://www.nerdfonts.com/)) |
+| `dashboard`    | ![dashboard](../docs/theme_dashboard.png)                                                   |
+| `cyberpunk`    | ![cyberpunk](../docs/theme_cyberpunk.png)                                                   |
+| `retro`        | ![retro](../docs/theme_retro.png)                                                           |
 
 ## Your config
 
@@ -85,6 +87,7 @@ The second argument every custom segment receives:
 | `format.formatTime(date)` / `formatDayTime(date)` | `14:05` / `Mon 14:05`                                                                                                                  |
 | `data.getModel(p)`                                | Model name or `null`                                                                                                                   |
 | `data.getCwd(p)`                                  | Working directory                                                                                                                      |
+| `data.getCwdName(p)`                              | Folder name for display (`~` for home)                                                                                                 |
 | `data.getBranch(p)`                               | Git branch or `null`                                                                                                                   |
 | `data.getContext(p)`                              | `{ used, total, pct }` or `null`                                                                                                       |
 | `data.getQuota(p, 'gemini' \| '3p')`              | `{ h5, weekly }` with `{ usedPct, resetAt }` each, or `null`                                                                           |
